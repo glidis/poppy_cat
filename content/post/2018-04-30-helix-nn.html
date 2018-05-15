@@ -1,0 +1,100 @@
+---
+title: helix_nn
+author: glidis
+date: '2018-04-30'
+slug: helix-nn
+categories:
+  - R
+  - nn
+tags: []
+---
+
+
+
+<p>生成数据</p>
+<pre class="r"><code>n &lt;- 100
+id &lt;- 1:n
+alpha1 &lt;- pi*(id-1)/25
+beta &lt;- 1.6*(105-id)/104
+x0 &lt;- 5+beta*sin(alpha1)
+y0 &lt;- 5+beta*cos(alpha1)
+z0 &lt;- rep(&#39;yes&#39;, n)
+x1 &lt;- 5-beta*sin(alpha1)
+y1 &lt;- 5-beta*cos(alpha1)
+z1 &lt;- rep(&#39;no&#39;, n)
+dat &lt;- rbind(data.frame(x=x0,y=y0,z=z0), data.frame(x=x1,y=y1,z=z1))</code></pre>
+<p>数据例子</p>
+<pre class="r"><code>dat[sample(nrow(dat), size = 10),]</code></pre>
+<pre><code>##            x        y   z
+## 136 6.009583 5.328033  no
+## 200 5.009641 4.923683  no
+## 93  4.844124 5.098922 yes
+## 188 5.261022 5.016422  no
+## 73  5.181231 4.542264 yes
+## 53  5.198952 5.774867 yes
+## 113 3.587408 4.911127  no
+## 121 4.240401 6.045499  no
+## 199 5.022956 4.910592  no
+## 4   5.572009 6.444730 yes</code></pre>
+<p>神经网络设置，引用自<a href="http://selbydavid.com/2018/01/09/neural-network/" class="uri">http://selbydavid.com/2018/01/09/neural-network/</a>。</p>
+<pre class="r"><code>sigmoid &lt;- function(x) 1 / (1 + exp(-x))
+
+feedforward &lt;- function(x, w1, w2) {
+  z1 &lt;- cbind(1, x) %*% w1
+  h &lt;- sigmoid(z1)
+  z2 &lt;- cbind(1, h) %*% w2
+  list(output = sigmoid(z2), h = h)
+}
+
+backpropagate &lt;- function(x, y, y_hat, w1, w2, h, learn_rate) {
+  dw2 &lt;- t(cbind(1, h)) %*% (y_hat - y)
+  dh  &lt;- (y_hat - y) %*% t(w2[-1, , drop = FALSE])
+  dw1 &lt;- t(cbind(1, x)) %*% (h * (1 - h) * dh)
+  
+  w1 &lt;- w1 - learn_rate * dw1
+  w2 &lt;- w2 - learn_rate * dw2
+  
+  list(w1 = w1, w2 = w2)
+}
+
+train &lt;- function(x, y, hidden = 5, learn_rate = 1e-2, iterations = 1e4) {
+  d &lt;- ncol(x) + 1
+  w1 &lt;- matrix(rnorm(d * hidden), d, hidden)
+  w2 &lt;- as.matrix(rnorm(hidden + 1))
+  for (i in 1:iterations) {
+    ff &lt;- feedforward(x, w1, w2)
+    bp &lt;- backpropagate(x, y,
+                        y_hat = ff$output,
+                        w1, w2,
+                        h = ff$h,
+                        learn_rate = learn_rate)
+    w1 &lt;- bp$w1; w2 &lt;- bp$w2
+  }
+  list(output = ff$output, w1 = w1, w2 = w2)
+}</code></pre>
+<p>训练</p>
+<pre class="r"><code>x &lt;- data.matrix(dat[, c(&#39;x&#39;, &#39;y&#39;)])
+z &lt;- dat$z == &#39;yes&#39;
+mnet5 &lt;- train(x, z, hidden = 30, iterations = 1e5)
+mean((mnet5$output &gt; .5) == z)</code></pre>
+<p>图示</p>
+<pre class="r"><code>grid &lt;- expand.grid(x = seq(min(dat$x) - .5,
+                             max(dat$x) + .5,
+                             by = .05),
+                    y = seq(min(dat$y) - .5,
+                             max(dat$y) + .5,
+                             by = .05))
+
+ff_grid &lt;- feedforward(x = data.matrix(grid[, c(&#39;x&#39;, &#39;y&#39;)]),
+                       w1 = mnet5$w1,
+                       w2 = mnet5$w2)
+## factor默认按大小顺序排后与labels一一对应，故0对应&#39;no&#39;
+grid$z &lt;- factor((ff_grid$output &gt; .5) * 1,
+                     labels = c(&quot;no&quot;, &quot;yes&quot;))
+
+library(ggplot2)
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>

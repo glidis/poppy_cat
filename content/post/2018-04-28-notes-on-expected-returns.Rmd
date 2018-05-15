@@ -1,0 +1,22 @@
+---
+title: Notes on ‘Expected Returns'
+author: Glidis
+date: '2018-04-28'
+slug: notes-on-expected-returns
+categories:
+  - Fiance
+  - Investment
+tags:
+  - Investment
+---
+有限理性的两个表现：
+
+- **Excessive Extrapolation**: expectting past multi-year trends to persist more than they do
+
+- **Insufficient Adaptation**: underreacting to recent news
+
+两种收益率：
+
+- **Simple Returns**, $P_{t+1}/P_t - 1$, 可跨资产相加，不可跨时间相加。
+- **Compounded Returns**, $\ln(P_{t+1}/P_{t})$, 可跨时间相加，不可跨资产相加。
+

@@ -1,0 +1,17 @@
+---
+title: For loops with ggplot2
+author: Glidis
+date: '2018-05-11'
+slug: for-loops-with-ggplot2
+categories:
+  - R
+tags:
+  - ggplot2
+---
+### 例如画3行4列12个图
+
+- 当数据比较规范，且作图要求一致的时候，用`facet_wrap`和`facet_grid`就可以解决大多数问题，但需要注意搭配`facet_wrap(~variable, scales = 'free_y')`。
+
+- 当其中某个图与其他图有不同时候，可以考虑先生成12张图，再利用`gridExtra::grid.arrange`整合在一起（另外可参考使用cowplow包）。此时for loop是一个比较自然的选择。分两种情况：
+    + loop变量i不进入`aes`函数，针对data进行循环，例如利用i来限制每次loop的`ggplot(data='subset(.....)')`。
+    + loop变量i进入`aes`函数，此时使用公用的`ggplot(data)`，此时不能使用`aes`函数，若i为string，需要使用`aes_string(x = 'year', y = i)`。

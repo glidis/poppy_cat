@@ -1,0 +1,103 @@
+---
+title: helix_nn
+author: glidis
+date: '2018-04-30'
+slug: helix-nn
+categories:
+  - R
+  - nn
+tags: []
+---
+生成数据
+```{r}
+n <- 100
+id <- 1:n
+alpha1 <- pi*(id-1)/25
+beta <- 1.6*(105-id)/104
+x0 <- 5+beta*sin(alpha1)
+y0 <- 5+beta*cos(alpha1)
+z0 <- rep('yes', n)
+x1 <- 5-beta*sin(alpha1)
+y1 <- 5-beta*cos(alpha1)
+z1 <- rep('no', n)
+dat <- rbind(data.frame(x=x0,y=y0,z=z0), data.frame(x=x1,y=y1,z=z1))
+```
+
+数据例子
+```{r}
+dat[sample(nrow(dat), size = 10),]
+```
+
+神经网络设置，引用自<http://selbydavid.com/2018/01/09/neural-network/>。
+```{r}
+sigmoid <- function(x) 1 / (1 + exp(-x))
+
+feedforward <- function(x, w1, w2) {
+  z1 <- cbind(1, x) %*% w1
+  h <- sigmoid(z1)
+  z2 <- cbind(1, h) %*% w2
+  list(output = sigmoid(z2), h = h)
+}
+
+backpropagate <- function(x, y, y_hat, w1, w2, h, learn_rate) {
+  dw2 <- t(cbind(1, h)) %*% (y_hat - y)
+  dh  <- (y_hat - y) %*% t(w2[-1, , drop = FALSE])
+  dw1 <- t(cbind(1, x)) %*% (h * (1 - h) * dh)
+  
+  w1 <- w1 - learn_rate * dw1
+  w2 <- w2 - learn_rate * dw2
+  
+  list(w1 = w1, w2 = w2)
+}
+
+train <- function(x, y, hidden = 5, learn_rate = 1e-2, iterations = 1e4) {
+  d <- ncol(x) + 1
+  w1 <- matrix(rnorm(d * hidden), d, hidden)
+  w2 <- as.matrix(rnorm(hidden + 1))
+  for (i in 1:iterations) {
+    ff <- feedforward(x, w1, w2)
+    bp <- backpropagate(x, y,
+                        y_hat = ff$output,
+                        w1, w2,
+                        h = ff$h,
+                        learn_rate = learn_rate)
+    w1 <- bp$w1; w2 <- bp$w2
+  }
+  list(output = ff$output, w1 = w1, w2 = w2)
+}
+```
+
+训练
+
+```{r, eval=FALSE}
+x <- data.matrix(dat[, c('x', 'y')])
+z <- dat$z == 'yes'
+mnet5 <- train(x, z, hidden = 30, iterations = 1e5)
+mean((mnet5$output > .5) == z)
+```
+
+图示
+
+```{r, eval=FALSE}
+grid <- expand.grid(x = seq(min(dat$x) - .5,
+                             max(dat$x) + .5,
+                             by = .05),
+                    y = seq(min(dat$y) - .5,
+                             max(dat$y) + .5,
+                             by = .05))
+
+ff_grid <- feedforward(x = data.matrix(grid[, c('x', 'y')]),
+                       w1 = mnet5$w1,
+                       w2 = mnet5$w2)
+## factor默认按大小顺序排后与labels一一对应，故0对应'no'
+grid$z <- factor((ff_grid$output > .5) * 1,
+                     labels = c("no", "yes"))
+
+library(ggplot2)
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = 'x', y = 'y') +
+  theme_bw()
+```
+
