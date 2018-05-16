@@ -1,0 +1,67 @@
+---
+title: ggplot2之geom_bar, geom_histogram,geom_freqpoly
+author: Glidis
+date: '2018-05-15'
+slug: ggplot2-geom-bar-geom-histogram-geom-freqpoly
+categories:
+  - R
+tags:
+  - ggplot2
+---
+
+```{r echo=FALSE}
+colFmt = function(x,color){
+  outputFormat = opts_knit$get("rmarkdown.pandoc.to")
+  if(outputFormat == 'latex')
+    paste("\\textcolor{",color,"}{",x,"}",sep="")
+  else if(outputFormat == 'html')
+    paste("<font color='",color,"'>",x,"</font>",sep="")
+  else
+    x
+}
+```
+
+## geom_bar
+一般用来处理离散x变量，柱子间有空隙，有一变种geom_col，区别如下：  
+
+- **geom_bar**默认的stat是count，即对源数据做了分组汇总，另外还可以在aes中设置weight变量(数值型)，即统计分组中weight变量的加总值。  
+- **geom_col**默认的stat是identity，不对data做汇总处理。
+
+## geom_freqpoly
+用来处理连续变量，因为结果是曲线，故用到的aes和geom_line一样。
+
+## geom_histogram
+同样用来处理连续变量，结果为条状图，但柱子间无空隙，一般需要设定binwidth，为了区分不同柱子，最好用color和fill填充不同的颜色。
+
+## Note
+- geom_histogram和geom_freqpoly可选的计算值有`count`, `density`, `ncount`, `ndensity`四种，详见帮助文档。
+- aes中的y可以用上述计算值和基于上述值的函数结果，形式为`..count..`。
+- geom_histogram有时为了在图上显示数值，需要与geom_text搭配使用，**由于geom_histogram和geom_text是不同的layer，二者使用的aes是都要通过`ggplot(data, aes(x))`计算的，这就会导致一个问题：连续变量情形下，geom_histogram指定了binwidth，而geom_text中不指定的话，geom_text添加的文字和文字的位置可能与柱子不相符。**
+- 上述问题的解决：
+    + 首先，确定geom_histogram的layer中stat的类型是什么，例如该ggplot对象名为`mm`，只需`mm$layers`即可看到相关信息。
+    + 在geom_text中设定相同的`stat`，并选取该stat下同样的参数，例如stat为bin，则选取与geom_histogram相同的`binwidth = `即可。
+
+## 例子
+```{r}
+library(ggplot2)
+library(scales)
+library(data.table)
+dat <- data.table(trt = sample(letters[1:5], size = 200, replace = TRUE),
+                  value = rnorm(200, 2, 1))
+dat_s <- dat[, list(count = .N), by = trt]
+ggplot(dat, aes(trt)) + geom_bar() # the same as
+ggplot(dat_s, aes(trt)) + geom_col(aes(y=count))
+```
+
+```{r}
+m <- ggplot(dat, aes(x = value))
+mm <- m + geom_histogram(aes(y = ..count../sum(..count..)), binwidth = 0.5, color = 'red',
+                         fill = 'blue')
+mm$layers
+mm + geom_text(aes(y = ..count../sum(..count..), 
+                   label = scales::percent(..count../sum(..count..))),
+               stat = 'bin', binwidth = 0.5, vjust = -0.3, size = 3) + 
+  scale_y_continuous(labels = percent) + labs(x="", y ="") + theme_bw()
+```
+
+
