@@ -1,0 +1,17 @@
+---
+title: R中导入数据的几点注意
+author: Glidis
+date: '2017-05-02'
+slug: r
+categories:
+  - R
+tags:
+  - read table
+---
+
+R中data import各种方法极为混乱，出错的地方经常有以下几点：
+
+- window平台下载的数据包含中文，由于编码问题在Mac系统中无法读取。有时read.csv中的encoding无法解决问题，可以转为readr::read_csv中的locale = locale(encoding="GB2312")来解决
+- read.csv中默认的Header=TRUE，readr::read_csv中对应的是col_names=TRUE。
+- stringasFactor的问题。在read.csv中默认的转为factor，而read_csv中仍为character。nlevels对character向量不起作用。
+- read_csv对默认的空列读取为NA_character，会导致不能数学计算的问题

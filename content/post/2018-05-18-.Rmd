@@ -1,0 +1,26 @@
+---
+title: 赋值符号"[<-"的非常见用法
+author: Glidis
+date: '2017-10-20'
+slug: ''
+categories:
+  - R
+tags:
+  - r function
+---
+用法来源于`Hmisc::cut2`
+```{r}
+# 若判断式返回TRUE则合并，若返回FALSE则不合并
+c(1:3, if(TRUE)5)
+c(1:3, if(FALSE)5)
+c(1:3, NULL)
+##### 如果判断式返回FALSE则不更改y，若返回TRUE则将y的元素全部替换掉
+y <- 1:2
+y[FALSE] <- 3
+y
+y[TRUE] <- 4
+y
+y[c(TRUE, FALSE)] <- 5
+y
+```
+

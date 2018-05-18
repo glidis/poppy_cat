@@ -1,0 +1,19 @@
+---
+title: 后台运行R脚本
+author: Glidis
+date: '2017-10-20'
+slug: r
+categories:
+  - R
+tags: []
+---
+
+有的R脚本运行耗时较长，可以选择在后台运行：  
+`R CMD BATCH source.R &`  
+但关掉终端，R进程会结束，此时可以使用`screen`   
+1. 在终端输入`screen`进入新的终端窗口；  
+2. 输入`R CMD BATCH source.R`  
+或者直接在终端输入  
+`screen R CMD BATCH source.R &`  
+
+

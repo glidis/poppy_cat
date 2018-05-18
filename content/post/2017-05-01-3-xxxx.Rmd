@@ -1,0 +1,35 @@
+---
+title: 匹配季度格式为3/xxxx
+author: Glidis
+date: '2017-05-01'
+slug: 3-xxxx
+categories:
+  - R
+tags:
+  - regex
+---
+
+- Q1. 如何正则表达式匹配3/xxxx,6/xxxx,9/xxxx,12/xxxx？
+
+```{r}
+patt <- "\\b([369]|([1][2]))/"  # match 3/,6/,9/,12/ at beginning
+charvec <- paste0(c(3,5,6,7,9,12,13,112,13,123), "/2012")
+grepl(patt, charvec)
+```
+
+
+- Q2. 如何将3/xxxx,6/xxxx,9/xxxx,12/xxxx转化为xxxx年第某季度？
+
+```{r}
+require(stringr)
+strfun <- function(x){
+  xx <- stringr::str_split_fixed(x, pattern = "/", n = 2)
+    switch (EXPR = xx[1],
+    "3" = paste0(xx[2], "年第一季度"),
+    "6" = paste0(xx[2], "年第二季度"),
+    "9" = paste0(xx[2], "年第三季度"),
+    "12" = paste0(xx[2], "年第四季度")
+  )
+}
+strfun("3/2016")
+```

@@ -1,0 +1,15 @@
+---
+title: get0函数
+author: Glidis
+date: '2017-06-15'
+slug: get0
+categories:
+  - R
+tags: r function
+---
+
+ `get0() ## The object—as from get(x, .)— if exists(x, .) is true, otherwise ifnotfound.`
+
+```{r}
+identical(NULL, get0("..foo.bar.."))  # default ifnotfound = NULL (!)
+```

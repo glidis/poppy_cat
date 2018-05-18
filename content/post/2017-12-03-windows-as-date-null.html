@@ -1,0 +1,27 @@
+---
+title: windows系统as.Date返回NULL
+author: Glidis
+date: '2017-12-03'
+slug: windows-as-date-null
+categories:
+  - R
+tags:
+  - r function
+  - Date
+  - locale
+---
+
+
+
+<p>在windows系统下用</p>
+<pre class="r"><code>as.Date(&#39;30aug2015&#39;, format = &#39;%d%b%Y&#39;)</code></pre>
+<pre><code>## [1] &quot;2015-08-30&quot;</code></pre>
+<p>返回NULL的原因是系统默认的LC_TIME中月和日是中文格式，解决方式如下</p>
+<pre class="r"><code>format(Sys.time(), &quot;%a %b %d %X %Y %Z&quot;)</code></pre>
+<pre><code>## [1] &quot;Fri May 18 16:30:59 2018 CST&quot;</code></pre>
+<pre class="r"><code>Sys.setlocale(&quot;LC_TIME&quot;, &quot;USA&quot;) # Windows</code></pre>
+<pre><code>## Warning in Sys.setlocale(&quot;LC_TIME&quot;, &quot;USA&quot;): OS reports request to set
+## locale to &quot;USA&quot; cannot be honored</code></pre>
+<pre><code>## [1] &quot;&quot;</code></pre>
+<pre class="r"><code>as.Date(&#39;30aug2015&#39;, format = &#39;%d%b%Y&#39;, tz=&quot;CST&quot;)</code></pre>
+<pre><code>## [1] &quot;2015-08-30&quot;</code></pre>

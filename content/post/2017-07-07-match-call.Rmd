@@ -1,0 +1,19 @@
+---
+title: match.call 的用法
+author: Glidis
+date: '2017-07-07'
+slug: match-call
+categories:
+  - R
+tags:
+  - r function
+---
+
+match.call用在function中直接得到function的列表
+```{r}
+xxx <- function(a, b, c, d,e){
+  mc <- match.call()
+  mc
+}
+xxx(1,2,3)  # 'call' class, `[` and `[[` methods are available
+```

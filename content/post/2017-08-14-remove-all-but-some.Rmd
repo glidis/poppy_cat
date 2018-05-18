@@ -1,0 +1,13 @@
+---
+title: remove all but some
+author: Glidis
+date: '2017-08-14'
+slug: remove-all-but-some
+categories:
+  - R
+tags:
+  - r function
+---
+
+How to remove all objects except some one in R?   
+`rm(list=setdiff(ls(), "x"))`

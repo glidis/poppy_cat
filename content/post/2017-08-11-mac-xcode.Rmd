@@ -1,0 +1,16 @@
+---
+title: Mac xcode 安装
+author: Glidis
+date: '2017-08-11'
+slug: mac-xcode
+categories:
+  - MacOS
+tags:
+  - xcode
+---
+### 安装xcode
+
+Mac电脑开发类文件在以下文件夹：  
+`/System/Library/CoreServices`  
+重新安装xcode：  
+`xcode-select --install`

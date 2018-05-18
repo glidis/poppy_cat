@@ -1,0 +1,23 @@
+---
+title: windows系统as.Date返回NULL
+author: Glidis
+date: '2017-12-03'
+slug: windows-as-date-null
+categories:
+  - R
+tags:
+  - r function
+  - Date
+  - locale
+---
+
+在windows系统下用  
+```{r}
+as.Date('30aug2015', format = '%d%b%Y')
+```
+返回NULL的原因是系统默认的LC_TIME中月和日是中文格式，解决方式如下  
+```{r}
+format(Sys.time(), "%a %b %d %X %Y %Z")
+Sys.setlocale("LC_TIME", "USA") # Windows
+as.Date('30aug2015', format = '%d%b%Y', tz="CST")
+```

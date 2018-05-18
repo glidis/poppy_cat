@@ -1,0 +1,18 @@
+---
+title: Mac BLAS for R
+author: Glidis
+date: '2017-09-01'
+slug: mac-blas-for-r
+categories:
+  - MacOS
+  - R
+tags:
+  - BLAS
+---
+
+
+
+<p>Mac<br />
+The SCF Macs use the fast, threaded BLAS from Apple’s Accelerate framework. To enable this on your own Mac, you can do the following to replace R’s default BLAS with the Accelerate version. You’ll need administrative privileges.</p>
+<p><code>cd /Library/Frameworks/R.framework/Versions/Current/Resources/lib</code> <code>mv libRblas.dylib libRblas.dylib.bak</code> <code>ln -s /System/Library/Frameworks/Accelerate.framework/Versions/Current/Frameworks/vecLib.framework/Versions/Current/libBLAS.dylib libRblas.dylib</code></p>
+<p>To change the number of threads used, follow the instructions above for Linux but use VECLIB_MAXIMUM_THREADS rather than OMP_NUM_THREADS.</p>

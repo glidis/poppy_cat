@@ -1,0 +1,28 @@
+---
+title: Split datasets into train and test
+author: Glidis
+date: '2018-05-18'
+slug: split-datasets-into-train-and-test
+categories:
+  - R
+tags:
+  - data.table
+---
+
+
+
+<pre class="r"><code>require(data.table)</code></pre>
+<pre><code>## Loading required package: data.table</code></pre>
+<pre class="r"><code>###
+DT_iris &lt;- data.table(iris)
+
+###  Does not remove duplicated rows
+ss_p70 &lt;- DT_iris[, sample(.I, size = ceiling(.N*0.7)), by=Species]
+DT_iris[ss_p70$V1] -&gt; aaa
+DT_iris[setdiff(1:nrow(DT_iris), ss_p70$V1)] -&gt; bbb
+
+### or by fsetdiff in data.table | duplicated rows removed
+setkey(DT_iris, Species)
+aaa &lt;- DT_iris[, .SD[sample(.N, size = ceiling(.N*0.7))], by = Species]
+setcolorder(aaa, neworder = colnames(DT_iris))
+bbb &lt;- fsetdiff(DT_iris, aaa)</code></pre>

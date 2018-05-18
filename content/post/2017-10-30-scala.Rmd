@@ -1,0 +1,40 @@
+---
+title: Scala初次接触
+author: Glidis
+date: '2017-10-30'
+slug: scala
+categories:
+  - Scala
+tags:
+  - if-else
+---
+
+1. if-else循环时先定义var，然后再进行相应操作。例如以下R code改写为scala形式：
+```{r}
+x <- runif(1, -1, 1)
+if(x > 0){
+  y <- x
+  z <- -x
+}else{
+  y <- -x
+  z <- x
+}
+```
+```
+var y = 1d
+var z = 1d
+val x = math.random()
+if(x > 0.5){
+ y = x
+ z = -x
+}else{
+ y = -x
+ z = x
+}
+```  
+2. 做递归时，若用到中间变量，则需预先将中间变量设为var，例如：
+
+```
+var xxx = 10
+xxx = f(xxx)
+```

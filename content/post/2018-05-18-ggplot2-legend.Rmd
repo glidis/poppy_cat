@@ -1,0 +1,43 @@
+---
+title: ggplot2合并legend
+author: Glidis
+date: '2017-10-18'
+slug: ggplot2-legend
+categories:
+  - R
+tags:
+  - ggplot2
+---
+例子来源于[stackoverflow](https://stackoverflow.com/questions/30321163/ggplot2-merge-color-and-fill-legends)
+```{r}
+require(data.table)
+library(ggplot2)
+dat_ribbon <- data.table(x = rep(2008:2017, 4),  
+                         ymin = c(rnorm(10, 1, 0.1), rnorm(10, 2, .1), 
+                                  rnorm(10, 3, .1), rnorm(10, 4, .1)),
+                         group = rep(LETTERS[1:4], each = 10),
+                         ymax = c(rnorm(10, 9, 0.1), rnorm(10, 8, .1), 
+                                  rnorm(10, 7, .1), rnorm(10, 6, .1)
+                                  )
+)
+
+dat_m <- data.table(x = 2008:2017, y = rnorm(10, 5, .1))
+                         
+ggplot(dat_ribbon, aes(x = factor(x))) +
+
+  geom_ribbon(aes(ymin = ymin, ymax = ymax, group = group, fill = "test4 test5"), 
+              alpha = 0.2) +
+  geom_line(aes(y = y, group = 1,color = "Test2"), data = dat_m) +
+  geom_blank(data = data.frame(x = rep(2012, 4), y = 5, 
+                               group = c("test4 test5", "Test2", "test", "Test3")), 
+             aes(y = y, color = group, fill = group)) +
+  scale_color_manual(name = "combined legend",
+                     values=c("test4 test5"= NA, "Test2" = "green", 
+                              "test"="azure", "Test3"="red")) + 
+  scale_fill_manual(name = "combined legend",
+                    values = c("test4 test5"= "violet", 
+                               "Test2" = NA, "test"=NA, "Test3"=NA)) +
+  labs(x='', y='')
+
+```
+
