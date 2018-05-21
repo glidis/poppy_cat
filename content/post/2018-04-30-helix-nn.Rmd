@@ -10,6 +10,7 @@ tags: []
 ---
 生成数据
 ```{r}
+library(ggplot2)
 n <- 100
 id <- 1:n
 alpha1 <- pi*(id-1)/25
@@ -78,14 +79,15 @@ mean((mnet5$output > .5) == z)
 
 图示
 
-```{r, eval=FALSE}
+```{r}
 grid <- expand.grid(x = seq(min(dat$x) - .5,
                              max(dat$x) + .5,
                              by = .05),
                     y = seq(min(dat$y) - .5,
                              max(dat$y) + .5,
                              by = .05))
-
+```
+```{r, eval=FALSE}
 ff_grid <- feedforward(x = data.matrix(grid[, c('x', 'y')]),
                        w1 = mnet5$w1,
                        w2 = mnet5$w2)
@@ -93,7 +95,6 @@ ff_grid <- feedforward(x = data.matrix(grid[, c('x', 'y')]),
 grid$z <- factor((ff_grid$output > .5) * 1,
                      labels = c("no", "yes"))
 
-library(ggplot2)
 ggplot(dat) + aes(x, y, colour = z) +
   geom_point(data = grid, size = .5) +
   geom_point() +
@@ -101,3 +102,22 @@ ggplot(dat) + aes(x, y, colour = z) +
   theme_bw()
 ```
 
+## 跑偏
+一般来说，增加隐藏节点数可以提高正确率，0.7左右的正确率比起线性分类器（甚至Logistic Regression）那可怜的正确率也算差强人意了。
+不过在这种非线性且光滑函数的情形，可以想象的到一些非参数方法会有不错的效果。以GAM为例：
+```{r}
+library(mgcv)
+dat$zz <- ifelse(dat$z == 'yes', 1, 0)
+fit_gam <- gam(zz~s(x,y), data = dat)
+p_gam <- predict.gam(fit_gam)
+table(dat$zz, p_gam >= .5)/nrow(dat)
+p_grid <- predict.gam(fit_gam, newdata = grid)
+grid$z <- factor((p_grid >= 0.5)*1, labels = c('no', 'yes'))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = 'x', y = 'y') +
+  theme_bw()
+```
+
+GAM在样本集内的预测堪称完美了(上述例子中连family都没设定，默认的gaussian，可以设置成binomial，即logistic连接函数)，可能也有人会说在边界外的预测并不怎么样，那首先就要对非参数方法在边界处的性质有个概念，在此不赘述。
