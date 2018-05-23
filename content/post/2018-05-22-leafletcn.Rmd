@@ -17,7 +17,7 @@ dat <- data.frame(nm = c("重庆","浙江","云南","厦门","天津","四川","
                   value = rnorm(10))
 ```
 直接套用leafletCN
-```{r}
+```{r, eval=FALSE}
 library(leaflet)
 library(leafletCN)
 geojsonMap(dat, mapName = 'china')
@@ -53,7 +53,7 @@ geojsonMap(dat, mapName = c('china', 'city'))
 事实上如果不是有特殊要求的话，重复也影响不大。 
 动手大改`geojsonMap`函数如下：
 
-```{r}
+```{r, eval=FALSE}
 geojsonMap_edit <- function (dat, mapName, namevar = NULL, valuevar = NULL, palette = "Blues", 
     colorMethod = "numeric", na.color = "#808080", popup = NULL, 
     stroke = T, smoothFactor = 1, weight = 1, fillOpacity = 0.7, 
@@ -146,7 +146,7 @@ geojsonMap_edit <- function (dat, mapName, namevar = NULL, valuevar = NULL, pale
 - 改动2：主动对数据补全了中国版图，主要是考虑到，如例子数据中只含有几个省份，若不提前补全，后面代码中会对地图数据按初始数据进行筛选，则最终画出的中国版图就不全，后果就严重了；
 - 改动3：去掉了tileType，无疑使得最终地图变得极丑，但若不移除会掩盖掉城市的信息。
 效果如下：
-```{r}
+```{r, eval=FALSE}
 geojsonMap_edit(dat, mapName = c('china', 'city'))
 ```
 
