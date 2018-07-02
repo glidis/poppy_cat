@@ -121,3 +121,26 @@ ggplot(dat) + aes(x, y, colour = z) +
 ```
 
 GAM在样本集内的预测堪称完美了(上述例子中连family都没设定，默认的gaussian，可以设置成binomial，即logistic连接函数)，可能也有人会说在边界外的预测并不怎么样，那首先就要对非参数方法在边界处的性质有个概念，在此不赘述。
+
+## 跑偏更新20180702
+
+研究了一下业界非常流行的评分卡模型（scorecard），在此数据集上表现如下：
+
+```{r}
+library(scorecard)
+bins <- woebin(dat, y = 'zz')
+dat_woe <- woebin_ply(dat, bins = bins)
+fit_woe <- glm(zz ~ .-z_woe, family = binomial(), data = dat_woe)
+p_woe <- predict(fit_woe, dat_woe, type = 'response')
+table(dat$zz, p_woe >= .5)/nrow(dat)
+grid$zz <- sample(0:1, size = nrow(grid), replace = TRUE) # useless but needed to run woebin_ply
+grid_woe <- woebin_ply(grid, bins = bins)
+p_grid <- predict(fit_woe, grid_woe, type = 'response')
+grid$z <- factor((p_grid >= 0.5)*1, labels = c('no', 'yes'))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = 'x', y = 'y') +
+  theme_bw()
+```
+
