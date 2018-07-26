@@ -1,8 +1,8 @@
 ---
-title: 赋值符号"[<-"的非常见用法
+title: R assign using boolean value 
 author: Glidis
 date: '2017-10-20'
-slug: ''
+slug: 'assign'
 categories:
   - R
 tags:

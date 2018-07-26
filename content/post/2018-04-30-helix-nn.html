@@ -27,16 +27,16 @@ dat &lt;- rbind(data.frame(x=x0,y=y0,z=z0), data.frame(x=x1,y=y1,z=z1))</code></
 <p>数据例子</p>
 <pre class="r"><code>dat[sample(nrow(dat), size = 10),]</code></pre>
 <pre><code>##            x        y   z
-## 5   5.741159 6.348164 yes
-## 134 5.922266 5.585288  no
-## 110 3.677560 4.377707  no
-## 94  4.869605 5.107872 yes
-## 125 4.845744 6.221064  no
-## 198 5.039644 4.899870  no
-## 129 5.430423 6.087123  no
-## 22  5.615162 3.881024 yes
-## 184 5.272783 5.173113  no
-## 173 4.818769 5.457736  no</code></pre>
+## 127 5.150400 6.190538  no
+## 179 5.147250 5.371911  no
+## 42  4.123014 5.412678 yes
+## 97  4.940707 5.107853 yes
+## 168 4.519383 5.305009  no
+## 85  4.721592 4.868991 yes
+## 174 4.881394 5.461940  no
+## 108 3.850157 4.048767  no
+## 176 5.000000 5.446154  no
+## 54  5.288836 5.729517 yes</code></pre>
 <p>神经网络设置，引用自<a href="http://selbydavid.com/2018/01/09/neural-network/" class="uri">http://selbydavid.com/2018/01/09/neural-network/</a>。</p>
 <pre class="r"><code>sigmoid &lt;- function(x) 1 / (1 + exp(-x))
 
