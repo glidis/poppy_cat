@@ -70,7 +70,7 @@ train <- function(x, y, hidden = 5, learn_rate = 1e-2, iterations = 1e4) {
 
 训练
 
-```{r, eval=FALSE}
+```{r}
 x <- data.matrix(dat[, c('x', 'y')])
 z <- dat$z == 'yes'
 mnet5 <- train(x, z, hidden = 30, iterations = 1e5)
@@ -87,7 +87,7 @@ grid <- expand.grid(x = seq(min(dat$x) - .5,
                              max(dat$y) + .5,
                              by = .05))
 ```
-```{r, eval=FALSE}
+```{r}
 ff_grid <- feedforward(x = data.matrix(grid[, c('x', 'y')]),
                        w1 = mnet5$w1,
                        w2 = mnet5$w2)
@@ -144,3 +144,20 @@ ggplot(dat) + aes(x, y, colour = z) +
   theme_bw()
 ```
 
+## 跑偏20181215 
+听同事说SVM也能达到样条函数的结果，测试如下：
+```{r}
+library(e1071)
+fit_svm <- svm(zz~x+y, data = dat, kenel = 'polynomial',
+	degree = 10)
+p_svm <- predict(fit_svm)
+table(dat$zz, p_svm >= .5)/nrow(dat)
+p_grid <- predict(fit_svm, newdata = grid)
+grid$z <- factor((p_grid >= 0.5)*1, labels = c('no', 'yes'))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = 'x', y = 'y') +
+  theme_bw()
+```
+即使更换了kenel，效果也无明显改变。
