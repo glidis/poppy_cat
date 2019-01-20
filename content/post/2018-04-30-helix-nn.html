@@ -27,16 +27,16 @@ dat &lt;- rbind(data.frame(x=x0,y=y0,z=z0), data.frame(x=x1,y=y1,z=z1))</code></
 <p>数据例子</p>
 <pre class="r"><code>dat[sample(nrow(dat), size = 10),]</code></pre>
 <pre><code>##            x        y   z
-## 70  5.368602 4.607478 yes
-## 133 5.853492 5.706070  no
-## 129 5.430423 6.087123  no
-## 83  4.739211 4.784256 yes
-## 151 5.000000 4.169231  no
-## 170 4.631398 5.392522  no
-## 46  4.466472 5.734339 yes
-## 141 5.936425 4.695737  no
-## 112 3.594574 4.731901  no
-## 36  3.990417 4.671967 yes</code></pre>
+## 165 4.395516 5.115312  no
+## 18  6.130100 4.282816 yes
+## 3   5.390252 6.519930 yes
+## 80  4.814710 4.662959 yes
+## 121 4.240401 6.045499  no
+## 155 4.629420 4.325918  no
+## 57  5.505512 5.538315 yes
+## 174 4.881394 5.461940  no
+## 17  6.224997 4.423560 yes
+## 39  3.986619 5.063757 yes</code></pre>
 <p>神经网络设置，引用自<a href="http://selbydavid.com/2018/01/09/neural-network/" class="uri">http://selbydavid.com/2018/01/09/neural-network/</a>。</p>
 <pre class="r"><code>sigmoid &lt;- function(x) 1 / (1 + exp(-x))
 
@@ -78,7 +78,7 @@ train &lt;- function(x, y, hidden = 5, learn_rate = 1e-2, iterations = 1e4) {
 z &lt;- dat$z == &#39;yes&#39;
 mnet5 &lt;- train(x, z, hidden = 30, iterations = 1e5)
 mean((mnet5$output &gt; .5) == z)</code></pre>
-<pre><code>## [1] 0.67</code></pre>
+<pre><code>## [1] 0.69</code></pre>
 <p>图示</p>
 <pre class="r"><code>grid &lt;- expand.grid(x = seq(min(dat$x) - .5,
                              max(dat$x) + .5,
@@ -174,6 +174,132 @@ ggplot(dat) + aes(x, y, colour = z) +
   geom_point() +
   labs(x = &#39;x&#39;, y = &#39;y&#39;) +
   theme_bw()</code></pre>
-<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-9-1.png" width="672" />
-即使更换了kenel，效果也无明显改变。</p>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>即使更换了kenel，效果也无明显改变。</p>
+</div>
+<div id="20190120" class="section level2">
+<h2>跑偏20190120</h2>
+<p>本来一直记得要测一下XGboost和RandomForest的效果的，但每次都到手边给忘掉了</p>
+<pre class="r"><code>library(xgboost)
+params_list &lt;- list(booster = &#39;gbtree&#39;,  eta= .03,
+                    objective = &#39;binary:logistic&#39;,
+                    eval_metric = &#39;rmse&#39;)
+dat_xgb_train &lt;- xgb.DMatrix(data = x, label = z) ## using &#39;x&#39; and &#39;z&#39; from mnet setting
+fit_xgb &lt;- xgboost(dat_xgb_train, params = params_list, nrounds = 100)</code></pre>
+<pre><code>## [1]  train-rmse:0.495116 
+## [2]  train-rmse:0.490714 
+## [3]  train-rmse:0.486490 
+## [4]  train-rmse:0.482336 
+## [5]  train-rmse:0.478335 
+## [6]  train-rmse:0.474372 
+## [7]  train-rmse:0.470570 
+## [8]  train-rmse:0.466793 
+## [9]  train-rmse:0.463398 
+## [10] train-rmse:0.460003 
+## [11] train-rmse:0.456437 
+## [12] train-rmse:0.453174 
+## [13] train-rmse:0.449773 
+## [14] train-rmse:0.446644 
+## [15] train-rmse:0.440040 
+## [16] train-rmse:0.433661 
+## [17] train-rmse:0.430684 
+## [18] train-rmse:0.424545 
+## [19] train-rmse:0.418661 
+## [20] train-rmse:0.415732 
+## [21] train-rmse:0.412967 
+## [22] train-rmse:0.410159 
+## [23] train-rmse:0.407510 
+## [24] train-rmse:0.404819 
+## [25] train-rmse:0.402293 
+## [26] train-rmse:0.399510 
+## [27] train-rmse:0.393908 
+## [28] train-rmse:0.388502 
+## [29] train-rmse:0.386069 
+## [30] train-rmse:0.383505 
+## [31] train-rmse:0.381175 
+## [32] train-rmse:0.378720 
+## [33] train-rmse:0.373511 
+## [34] train-rmse:0.371282 
+## [35] train-rmse:0.368930 
+## [36] train-rmse:0.363906 
+## [37] train-rmse:0.361804 
+## [38] train-rmse:0.359493 
+## [39] train-rmse:0.357275 
+## [40] train-rmse:0.355228 
+## [41] train-rmse:0.353107 
+## [42] train-rmse:0.351097 
+## [43] train-rmse:0.348860 
+## [44] train-rmse:0.345640 
+## [45] train-rmse:0.343671 
+## [46] train-rmse:0.341489 
+## [47] train-rmse:0.339595 
+## [48] train-rmse:0.336511 
+## [49] train-rmse:0.334537 
+## [50] train-rmse:0.332724 
+## [51] train-rmse:0.329746 
+## [52] train-rmse:0.327733 
+## [53] train-rmse:0.324859 
+## [54] train-rmse:0.322931 
+## [55] train-rmse:0.320171 
+## [56] train-rmse:0.318295 
+## [57] train-rmse:0.316287 
+## [58] train-rmse:0.314480 
+## [59] train-rmse:0.311813 
+## [60] train-rmse:0.310068 
+## [61] train-rmse:0.307506 
+## [62] train-rmse:0.305820 
+## [63] train-rmse:0.303799 
+## [64] train-rmse:0.302171 
+## [65] train-rmse:0.299708 
+## [66] train-rmse:0.298136 
+## [67] train-rmse:0.295791 
+## [68] train-rmse:0.293850 
+## [69] train-rmse:0.292313 
+## [70] train-rmse:0.290839 
+## [71] train-rmse:0.288548 
+## [72] train-rmse:0.285601 
+## [73] train-rmse:0.284002 
+## [74] train-rmse:0.282138 
+## [75] train-rmse:0.280576 
+## [76] train-rmse:0.278445 
+## [77] train-rmse:0.275678 
+## [78] train-rmse:0.274156 
+## [79] train-rmse:0.272150 
+## [80] train-rmse:0.269526 
+## [81] train-rmse:0.267009 
+## [82] train-rmse:0.265314 
+## [83] train-rmse:0.263896 
+## [84] train-rmse:0.262539 
+## [85] train-rmse:0.261027 
+## [86] train-rmse:0.259559 
+## [87] train-rmse:0.257680 
+## [88] train-rmse:0.255969 
+## [89] train-rmse:0.254553 
+## [90] train-rmse:0.252800 
+## [91] train-rmse:0.251154 
+## [92] train-rmse:0.249471 
+## [93] train-rmse:0.247885 
+## [94] train-rmse:0.246153 
+## [95] train-rmse:0.244621 
+## [96] train-rmse:0.243425 
+## [97] train-rmse:0.241898 
+## [98] train-rmse:0.240454 
+## [99] train-rmse:0.238745 
+## [100]    train-rmse:0.237618</code></pre>
+<pre class="r"><code>p_xgb &lt;- predict(fit_xgb, as.matrix(dat[, 1:2]))
+table(z, p_xgb &gt;= .5)/nrow(dat)</code></pre>
+<pre><code>##        
+## z       FALSE TRUE
+##   FALSE   0.5  0.0
+##   TRUE    0.0  0.5</code></pre>
+<pre class="r"><code>p_grid &lt;- predict(fit_xgb, newdata = as.matrix(grid[, 1:2]))
+grid$z &lt;- factor((p_grid &gt;= 0.5)*1, labels = c(&#39;no&#39;, &#39;yes&#39;))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>好吧，真是大杀器，贪婪算法就是能把你打哭。不过我们只是在训练集上看训练效果，从图中不难看出，overfit应该是很严重的。值得一提的是，gblinear的表现比gbtree差远了，说到底xgboost还是贪婪的树类模型，加上其他多余的设定自然会使效果大打折扣。</p>
+<p>随机森林已经没有心情测了，我是那么的看好样条方法，好气啊！</p>
 </div>

@@ -160,4 +160,31 @@ ggplot(dat) + aes(x, y, colour = z) +
   labs(x = 'x', y = 'y') +
   theme_bw()
 ```
+
 即使更换了kenel，效果也无明显改变。
+
+
+## 跑偏20190120
+本来一直记得要测一下XGboost和RandomForest的效果的，但每次都到手边给忘掉了
+
+```{r}
+library(xgboost)
+params_list <- list(booster = 'gbtree',  eta= .03,
+                    objective = 'binary:logistic',
+                    eval_metric = 'rmse')
+dat_xgb_train <- xgb.DMatrix(data = x, label = z) ## using 'x' and 'z' from mnet setting
+fit_xgb <- xgboost(dat_xgb_train, params = params_list, nrounds = 100)
+p_xgb <- predict(fit_xgb, as.matrix(dat[, 1:2]))
+table(z, p_xgb >= .5)/nrow(dat)
+p_grid <- predict(fit_xgb, newdata = as.matrix(grid[, 1:2]))
+grid$z <- factor((p_grid >= 0.5)*1, labels = c('no', 'yes'))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = 'x', y = 'y') +
+  theme_bw()
+```
+
+好吧，真是大杀器，贪婪算法就是能把你打哭。不过我们只是在训练集上看训练效果，从图中不难看出，overfit应该是很严重的。值得一提的是，gblinear的表现比gbtree差远了，说到底xgboost还是贪婪的树类模型，加上其他多余的设定自然会使效果大打折扣。
+
+随机森林已经没有心情测了，我是那么的看好样条方法，好气啊！
