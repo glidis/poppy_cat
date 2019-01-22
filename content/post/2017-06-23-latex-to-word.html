@@ -1,0 +1,24 @@
+---
+title: latex to word
+author: Glidis
+date: '2017-06-23'
+slug: latex-to-word
+categories:
+  - pandoc
+tags:
+  - latex to word
+---
+
+
+
+<p>##Something about pandoc from tex to word</p>
+<div class="section level3">
+<h3><em>个人经验，不一定准确</em></h3>
+<p><code>cd Documents/Latex</code></p>
+<p><code>pandoc xxx.tex --include-in-header header.tex --bibliography=FILE -o xxx.docx</code></p>
+<ul>
+<li>没有使用 pandoc -s ，也就是说没有用默认的Latex模版，</li>
+<li>其次header.tex文件主要包含各种usepackage信息，</li>
+<li>当使用了bibliography文件时，自定义的引用函数如\mycitet{}仍可以用，但是需要配置在xxx.tex文件中，特别是自定义的函数的效果和直接用xxx.tex产生pdf的效果不一样。</li>
+</ul>
+</div>

@@ -1,0 +1,138 @@
+---
+title: leafletCN数据中地名既有省份也有城市
+author: Glidis
+date: '2018-05-22'
+slug: leafletcn
+categories:
+  - R
+tags:
+  - leaflet
+  - maps
+  - China
+---
+
+
+
+<p>声明：内容涉及到修改leafletCN包某些函数的底层代码，如有侵犯了该包作者的权利，敬请谅解！<br />
+例子数据：</p>
+<pre class="r"><code>dat &lt;- data.frame(nm = c(&quot;重庆&quot;,&quot;浙江&quot;,&quot;云南&quot;,&quot;厦门&quot;,&quot;天津&quot;,&quot;四川&quot;,&quot;深圳&quot;,&quot;青岛&quot;,&quot;宁夏&quot;,&quot;宁波&quot;),
+                  value = rnorm(10))</code></pre>
+<p>直接套用leafletCN</p>
+<pre class="r"><code>library(leaflet)
+library(leafletCN)
+geojsonMap(dat, mapName = &#39;china&#39;)
+geojsonMap(dat, mapName = &#39;city&#39;)</code></pre>
+<p>如何把两张图放一起呢？<br />
+伪解决方案：<br />
+- geojsonMap中的mapName项的用途是基于<code>leafletCN:::readGeoLocal</code>函数将mapName读为<code>sp</code>包中的<code>SpatialPolygonsDataFrame</code>class矩阵，该class的methods可以由<code>methods(class = &quot;SpatialPolygonsDataFrame&quot;)</code>来查看。<br />
+- 基于SpatialPolygonsDataFrame矩阵可以rbind的性质，改写<code>leafletCN:::geojsonMap</code>函数，将<code>countries &lt;- readGeoLocal(mapName)</code>替换为</p>
+<blockquote>
+<p>if(length(mapName) &gt; 1){<br />
+countries &lt;- do.call(rbind, lapply(mapName, function(x){<br />
+readGeoLocal(x)[, c(‘id’, ‘name’)]<br />
+}))<br />
+}else countries &lt;- readGeoLocal(mapName)</p>
+</blockquote>
+<p>如此多次一举，是因为<code>leafletCN:::readGeoLocal('city')</code>和<code>leafletCN:::readGeoLocal('china')</code>的<code>dim</code>是不同的，还好这些矩阵中都有id和name列，并且geojsonMap也只用到了这两列。</p>
+<p>此时</p>
+<pre class="r"><code>geojsonMap(dat, mapName = c(&#39;china&#39;, &#39;city&#39;))</code></pre>
+<p>就可以解决问题。</p>
+<p>之所以说是伪解决方案，是因为<br />
+1. 直辖市在<code>china</code>和<code>city</code>中均出现，用了rbind就导致了重复；
+2. 会显示所有的城市区域边界，不太美观。</p>
+<p>然而去重并不是容易的事情：<br />
+1. SpatialPolygonsDataFrame是特殊的data.frame，不好操作。<strong>说到这里，非常想吐槽一下，<code>geojsonMap</code>的第一行竟然是判断<code>class(dat) == 'data.frame'</code>，这直接导致了data.table等许多格式的报错，强烈建议改为<code>inherits(dat, 'data.frame')</code>。</strong>
+2. 造成重复的关键其实是<code>leafletCN:::toLabel</code>函数只截取了地名的前两个字。</p>
+<p>事实上如果不是有特殊要求的话，重复也影响不大。
+动手大改<code>geojsonMap</code>函数如下：</p>
+<pre class="r"><code>geojsonMap_edit &lt;- function (dat, mapName, namevar = NULL, valuevar = NULL, palette = &quot;Blues&quot;, 
+    colorMethod = &quot;numeric&quot;, na.color = &quot;#808080&quot;, popup = NULL, 
+    stroke = T, smoothFactor = 1, weight = 1, fillOpacity = 0.7, 
+    legendTitle = &quot;Legend&quot;, tileType = amap, ...) 
+{
+    if (!inherits(dat, &#39;data.frame&#39;)) {   ## edit 1
+        stop(&quot;dat should be a data.frame&quot;)
+    }
+    if (is.null(namevar)) {
+        name = dat[, 1] %&gt;% leafletCN:::toLabel()
+    }
+    else {
+        name = evalFormula(namevar, dat) %&gt;% leafletCN:::toLabel()
+    }
+    name = as.character(name)
+    ## edit 2 begin
+    china_dat &lt;- as.data.frame(leafletCN:::readGeoLocal(&#39;china&#39;)[, c(&#39;id&#39;, &#39;name&#39;)])
+    china_dat$match_var &lt;- leafletCN:::toLabel(china_dat$name)
+    if(&#39;match_var&#39; %in% colnames(dat)){
+        colnames(dat) &lt;- paste0(&#39;V&#39;, colnames(dat))
+        dat$match_var &lt;- name
+        valuevar &lt;- paste0(&#39;V&#39;, valuevar)
+    }else dat$match_var &lt;- name
+    dat &lt;- merge(dat, china_dat, by = &#39;match_var&#39;, all = TRUE)
+    name &lt;- dat$match_var
+    if (is.null(valuevar)) {
+        value = dat[, 3] # the 1st column is match_var
+    }
+    else {
+    value &lt;- leafletCN:::evalFormula(valuevar, dat)
+    }
+    if(length(mapName) &gt; 1){
+        spmatrix_list &lt;- lapply(mapName, function(x){
+        tmp &lt;- leafletCN:::readGeoLocal(x)[, c(&#39;id&#39;, &#39;name&#39;)]
+        tmp$label &lt;- leafletCN:::toLabel(tmp$name)
+        tmp
+        })
+        countries &lt;- do.call(rbind, spmatrix_list)
+    }
+    else countries &lt;- leafletCN:::readGeoLocal(mapName)
+    
+    countries$label = leafletCN:::toLabel(countries$name)
+    countries &lt;- countries[countries$label %in% name, ]
+    index &lt;- match(countries$label, name)
+    ## edit 2 end
+    if (is.null(popup)) {
+        countries$popup = countries$name
+    }
+    else if (length(popup) != dim(dat)[1]) {
+        warning(&quot;Length of popup and data don&#39;t match, use names instead!&quot;)
+        countries$popup = countries$name
+    }
+    else {
+        countries$popup = popup[index]
+    }
+    countries$value = value[index]
+    if (colorMethod == &quot;numeric&quot;) {
+        pal &lt;- leaflet::colorNumeric(palette = palette, domain = countries$value, 
+            na.color = na.color, ...)
+    }
+    else if (colorMethod == &quot;bin&quot;) {
+        pal &lt;- leaflet::colorBin(palette = palette, domain = countries$value, 
+            na.color = na.color, ...)
+    }
+    else if (colorMethod == &quot;quantile&quot;) {
+        pal &lt;- leaflet::colorQuantile(palette = palette, domain = countries$value, 
+            na.color = na.color, ...)
+    }
+    else if (colorMethod == &quot;factor&quot;) {
+        pal &lt;- leaflet::colorFactor(palette = palette, domain = countries$value, 
+            na.color = na.color, ...)
+    }
+    else {
+        pal &lt;- leaflet::colorNumeric(palette = palette, domain = countries$value, 
+            na.color = na.color, ...)
+    }
+    map &lt;- leaflet::leaflet(countries)
+    map %&gt;% leaflet::addPolygons(stroke = stroke,   # edit 3 remove tileType 
+        smoothFactor = smoothFactor, fillOpacity = fillOpacity, 
+        weight = weight, color = ~pal(value), popup = ~htmltools::htmlEscape(popup)) %&gt;% 
+        leaflet::addLegend(&quot;bottomright&quot;, pal = pal, values = ~value, 
+            title = legendTitle, labFormat = leaflet::labelFormat(prefix = &quot;&quot;), 
+            opacity = 1)
+}</code></pre>
+<p>其中：<br />
+- 改动1：兼容了其他继承于data.frame的数据格式，例如data.table；
+- 改动2：主动对数据补全了中国版图，主要是考虑到，如例子数据中只含有几个省份，若不提前补全，后面代码中会对地图数据按初始数据进行筛选，则最终画出的中国版图就不全，后果就严重了；
+- 改动3：去掉了tileType，无疑使得最终地图变得极丑，但若不移除会掩盖掉城市的信息。
+效果如下：</p>
+<pre class="r"><code>geojsonMap_edit(dat, mapName = c(&#39;china&#39;, &#39;city&#39;))</code></pre>
+<p>这个大杀器还是要慎用，青海省有个海南自治区，吉林省有个吉林市。。。。</p>

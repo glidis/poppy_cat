@@ -55,7 +55,6 @@ time make install
 先退出root权限，在命令行里输入`exit`即可。接下来测试R版本。
 ```{shell}
 which R
-R version
 R
 ```
 
