@@ -1,0 +1,141 @@
+---
+title: ubuntu issues
+author: Glidis
+date: '2019-02-11'
+slug: ubuntu-issues
+categories:
+  - linux
+tags:
+  - ubuntu
+  - r studio server
+---
+
+## ubuntu issues
+
+### install latest version R
+
+1. add the relecant GPG key
+
+   ```
+   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+   ```
+
+2. add the relevant repository 
+
+   ```
+   sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
+   ```
+
+3. update and install
+
+   ```
+   sudo apt update
+   sudo apt install r-base -y
+   ```
+
+4. install R packages
+
+   ```
+   sudo -i R
+   ```
+
+### install rstudio server
+
+1. 64bit Rstudio version1.1.463
+
+   ```
+   sudo apt-get install gdebi-core
+   wget https://download2.rstudio.org/rstudio-server-1.1.463-amd64.deb
+   sudo gdebi rstudio-server-1.1.463-amd64.deb
+   ```
+
+2. navigate a web browser to 
+
+> http://<server-ip>:8787
+
+3. more configurations see https://docs.rstudio.com/ide/server-pro/index.html
+
+### install Anaconda
+
+1. go to https://www.anaconda.com/distribution/, find Linux 64-Bit(x86) installer, copy the link address. for example https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh
+
+2. download the Anaconda  Script
+
+   ```
+   wget https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh
+   ```
+
+3. run the script and make selections
+
+   ```
+   sh Anaconda3-2018.12-Linux-x86_64.sh
+   ```
+
+### jupyter notebook remote settings
+
+1. generate `jupyter_notebook_config.py`
+
+   ```
+   cd ~
+   jupyter notebook --generate-config
+   ```
+
+2. there are two ways to generate jupyter-notebook password, either is fine.
+
+   -  automatically, password saved at `jupyter_notebook_config.json` 
+
+     ```
+     jupyter-notebook password
+     ```
+
+   - manually, generate hashed password in python
+
+     ```
+     from notebook.auth import passwd
+     passwd()
+     ```
+
+     copy the out, e.g. `'sha1:67c9e60bb8b6:9ffede0825894254b2e042ea597d771089e11aed'`
+
+     edit `~/.jupyter/jupyter_notebook_config.py`, 
+
+     and add
+
+     `c.NotebookApp.password = u'sha1:67c9e60bb8b6:9ffede0825894254b2e042ea597d771089e11aed'`
+
+3. set ip and port
+
+   edit `~/.jupyter/jupyter_notebook_config.py`, 
+
+   and add
+
+   ```
+   c.NotebookApp.ip='0.0.0.0'
+   c.NotebookApp.open_browser = False
+   c.NotebookApp.port = 8888 #可自行指定一个端口, 访问时使用该端口
+   ```
+
+   
+
+4. start jupyter notebook session
+
+   ```
+   jupyter-notebook	
+   ```
+
+5. navigate a web browser to 
+
+> http://<server-ip>:8888
+
+### other ubuntu issues
+
+- close laptop lid but do nothing
+
+  1. `sudo vim /etc/systemd/logind.conf`
+  2. Add a line `HandleLidSwitch=ignore`
+  3. `sudo service systemd-logind restart`
+
+  
+
+
+
