@@ -1,0 +1,32 @@
+---
+title: Cenos启用网络并安装Rstudio server
+author: Glidis
+date: '2017-08-20'
+slug: cenos-rstudio-server
+categories:
+  - linux
+tags:
+  - r studio server
+---
+
+
+
+<ol style="list-style-type: decimal">
+<li>先安装Centos<br />
+Centos Error: Cannot find a valid baseurl for repo: base<br />
+<code>sudo dhclient</code></li>
+<li>安装R<br />
+<code>sudo yum update</code><br />
+<code>sudo yum install epel-release</code><br />
+<code>sudo yum install R</code><br />
+</li>
+<li>安装Rstudio server<br />
+可以参考Rstudio官网<br />
+若没有wget命令，先<br />
+<code>sudo yum install wget</code><br />
+然后<br />
+<code>wget https://download2.rstudio.org/rstudio-server-rhel-1.0.153-x86_64.rpm</code><br />
+<code>sudo yum install --nogpgcheck rstudio-server-rhel-1.0.153-x86_64.rpm</code><br />
+<code>systemctl status rstudio-server.service</code><br />
+然后访问http://yourip:8787。</li>
+</ol>

@@ -1,0 +1,303 @@
+---
+title: helix_nn
+author: glidis
+date: '2018-04-30'
+slug: helix-nn
+categories:
+  - R
+  - nn
+tags: []
+---
+
+
+
+<p>生成数据</p>
+<pre class="r"><code>library(ggplot2)
+n &lt;- 100
+id &lt;- 1:n
+alpha1 &lt;- pi*(id-1)/25
+beta &lt;- 1.6*(105-id)/104
+x0 &lt;- 5+beta*sin(alpha1)
+y0 &lt;- 5+beta*cos(alpha1)
+z0 &lt;- rep(&#39;yes&#39;, n)
+x1 &lt;- 5-beta*sin(alpha1)
+y1 &lt;- 5-beta*cos(alpha1)
+z1 &lt;- rep(&#39;no&#39;, n)
+dat &lt;- rbind(data.frame(x=x0,y=y0,z=z0), data.frame(x=x1,y=y1,z=z1))</code></pre>
+<p>数据例子</p>
+<pre class="r"><code>dat[sample(nrow(dat), size = 10),]</code></pre>
+<pre><code>##            x        y   z
+## 69  5.426746 4.646965 yes
+## 170 4.631398 5.392522  no
+## 18  6.130100 4.282816 yes
+## 155 4.629420 4.325918  no
+## 111 3.624626 4.553114  no
+## 106 4.104758 3.767805  no
+## 182 5.242224 5.257943  no
+## 125 4.845744 6.221064  no
+## 116 3.697784 5.423116  no
+## 50  4.893949 5.839482 yes</code></pre>
+<p>神经网络设置，引用自<a href="http://selbydavid.com/2018/01/09/neural-network/" class="uri">http://selbydavid.com/2018/01/09/neural-network/</a>。</p>
+<pre class="r"><code>sigmoid &lt;- function(x) 1 / (1 + exp(-x))
+
+feedforward &lt;- function(x, w1, w2) {
+  z1 &lt;- cbind(1, x) %*% w1
+  h &lt;- sigmoid(z1)
+  z2 &lt;- cbind(1, h) %*% w2
+  list(output = sigmoid(z2), h = h)
+}
+
+backpropagate &lt;- function(x, y, y_hat, w1, w2, h, learn_rate) {
+  dw2 &lt;- t(cbind(1, h)) %*% (y_hat - y)
+  dh  &lt;- (y_hat - y) %*% t(w2[-1, , drop = FALSE])
+  dw1 &lt;- t(cbind(1, x)) %*% (h * (1 - h) * dh)
+  
+  w1 &lt;- w1 - learn_rate * dw1
+  w2 &lt;- w2 - learn_rate * dw2
+  
+  list(w1 = w1, w2 = w2)
+}
+
+train &lt;- function(x, y, hidden = 5, learn_rate = 1e-2, iterations = 1e4) {
+  d &lt;- ncol(x) + 1
+  w1 &lt;- matrix(rnorm(d * hidden), d, hidden)
+  w2 &lt;- as.matrix(rnorm(hidden + 1))
+  for (i in 1:iterations) {
+    ff &lt;- feedforward(x, w1, w2)
+    bp &lt;- backpropagate(x, y,
+                        y_hat = ff$output,
+                        w1, w2,
+                        h = ff$h,
+                        learn_rate = learn_rate)
+    w1 &lt;- bp$w1; w2 &lt;- bp$w2
+  }
+  list(output = ff$output, w1 = w1, w2 = w2)
+}</code></pre>
+<p>训练</p>
+<pre class="r"><code>x &lt;- data.matrix(dat[, c(&#39;x&#39;, &#39;y&#39;)])
+z &lt;- dat$z == &#39;yes&#39;
+mnet5 &lt;- train(x, z, hidden = 30, iterations = 1e5)
+mean((mnet5$output &gt; .5) == z)</code></pre>
+<pre><code>## [1] 0.725</code></pre>
+<p>图示</p>
+<pre class="r"><code>grid &lt;- expand.grid(x = seq(min(dat$x) - .5,
+                             max(dat$x) + .5,
+                             by = .05),
+                    y = seq(min(dat$y) - .5,
+                             max(dat$y) + .5,
+                             by = .05))</code></pre>
+<pre class="r"><code>ff_grid &lt;- feedforward(x = data.matrix(grid[, c(&#39;x&#39;, &#39;y&#39;)]),
+                       w1 = mnet5$w1,
+                       w2 = mnet5$w2)
+## factor默认按大小顺序排后与labels一一对应，故0对应&#39;no&#39;
+grid$z &lt;- factor((ff_grid$output &gt; .5) * 1,
+                     labels = c(&quot;no&quot;, &quot;yes&quot;))
+
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="section level2">
+<h2>跑偏</h2>
+<p>一般来说，增加隐藏节点数可以提高正确率，0.7左右的正确率比起线性分类器（甚至Logistic Regression）那可怜的正确率也算差强人意了。 不过在这种非线性且光滑函数的情形，可以想象的到一些非参数方法会有不错的效果。以GAM为例：</p>
+<pre class="r"><code>library(mgcv)</code></pre>
+<pre><code>## Loading required package: nlme</code></pre>
+<pre><code>## This is mgcv 1.8-24. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<pre class="r"><code>dat$zz &lt;- ifelse(dat$z == &#39;yes&#39;, 1, 0)
+fit_gam &lt;- gam(zz~s(x,y), data = dat)
+p_gam &lt;- predict.gam(fit_gam)
+table(dat$zz, p_gam &gt;= .5)/nrow(dat)</code></pre>
+<pre><code>##    
+##     FALSE TRUE
+##   0  0.49 0.01
+##   1  0.01 0.49</code></pre>
+<pre class="r"><code>p_grid &lt;- predict.gam(fit_gam, newdata = grid)
+grid$z &lt;- factor((p_grid &gt;= 0.5)*1, labels = c(&#39;no&#39;, &#39;yes&#39;))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>GAM在样本集内的预测堪称完美了(上述例子中连family都没设定，默认的gaussian，可以设置成binomial，即logistic连接函数)，可能也有人会说在边界外的预测并不怎么样，那首先就要对非参数方法在边界处的性质有个概念，在此不赘述。</p>
+</div>
+<div id="20180702" class="section level2">
+<h2>跑偏更新20180702</h2>
+<p>研究了一下业界非常流行的评分卡模型（scorecard），在此数据集上表现如下：</p>
+<pre class="r"><code>library(scorecard)
+bins &lt;- woebin(dat, y = &#39;zz&#39;)
+dat_woe &lt;- woebin_ply(dat, bins = bins)
+fit_woe &lt;- glm(zz ~ .-z_woe, family = binomial(), data = dat_woe)
+p_woe &lt;- predict(fit_woe, dat_woe, type = &#39;response&#39;)
+table(dat$zz, p_woe &gt;= .5)/nrow(dat)</code></pre>
+<pre><code>##    
+##     FALSE  TRUE
+##   0 0.395 0.105
+##   1 0.150 0.350</code></pre>
+<pre class="r"><code>grid$zz &lt;- sample(0:1, size = nrow(grid), replace = TRUE) # useless but needed to run woebin_ply
+grid_woe &lt;- woebin_ply(grid, bins = bins)
+p_grid &lt;- predict(fit_woe, grid_woe, type = &#39;response&#39;)
+grid$z &lt;- factor((p_grid &gt;= 0.5)*1, labels = c(&#39;no&#39;, &#39;yes&#39;))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="20181215" class="section level2">
+<h2>跑偏20181215</h2>
+<p>听同事说SVM也能达到样条函数的结果，测试如下：</p>
+<pre class="r"><code>library(e1071)</code></pre>
+<pre><code>## Warning: package &#39;e1071&#39; was built under R version 3.5.2</code></pre>
+<pre><code>## 
+## Attaching package: &#39;e1071&#39;</code></pre>
+<pre><code>## The following object is masked _by_ &#39;.GlobalEnv&#39;:
+## 
+##     sigmoid</code></pre>
+<pre class="r"><code>fit_svm &lt;- svm(zz~x+y, data = dat, kenel = &#39;polynomial&#39;,
+    degree = 10)
+p_svm &lt;- predict(fit_svm)
+table(dat$zz, p_svm &gt;= .5)/nrow(dat)</code></pre>
+<pre><code>##    
+##     FALSE  TRUE
+##   0 0.325 0.175
+##   1 0.175 0.325</code></pre>
+<pre class="r"><code>p_grid &lt;- predict(fit_svm, newdata = grid)
+grid$z &lt;- factor((p_grid &gt;= 0.5)*1, labels = c(&#39;no&#39;, &#39;yes&#39;))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>即使更换了kenel，效果也无明显改变。</p>
+</div>
+<div id="20190120" class="section level2">
+<h2>跑偏20190120</h2>
+<p>本来一直记得要测一下XGboost和RandomForest的效果的，但每次都到手边给忘掉了</p>
+<pre class="r"><code>library(xgboost)
+params_list &lt;- list(booster = &#39;gbtree&#39;,  eta= .03,
+                    objective = &#39;binary:logistic&#39;,
+                    eval_metric = &#39;rmse&#39;)
+dat_xgb_train &lt;- xgb.DMatrix(data = x, label = z) ## using &#39;x&#39; and &#39;z&#39; from mnet setting
+fit_xgb &lt;- xgboost(dat_xgb_train, params = params_list, nrounds = 100)</code></pre>
+<pre><code>## [1]  train-rmse:0.495116 
+## [2]  train-rmse:0.490714 
+## [3]  train-rmse:0.486490 
+## [4]  train-rmse:0.482336 
+## [5]  train-rmse:0.478335 
+## [6]  train-rmse:0.474372 
+## [7]  train-rmse:0.470570 
+## [8]  train-rmse:0.466793 
+## [9]  train-rmse:0.463398 
+## [10] train-rmse:0.460003 
+## [11] train-rmse:0.456437 
+## [12] train-rmse:0.453174 
+## [13] train-rmse:0.449773 
+## [14] train-rmse:0.446644 
+## [15] train-rmse:0.440040 
+## [16] train-rmse:0.433661 
+## [17] train-rmse:0.430684 
+## [18] train-rmse:0.424545 
+## [19] train-rmse:0.418661 
+## [20] train-rmse:0.415732 
+## [21] train-rmse:0.412967 
+## [22] train-rmse:0.410159 
+## [23] train-rmse:0.407510 
+## [24] train-rmse:0.404819 
+## [25] train-rmse:0.402293 
+## [26] train-rmse:0.399510 
+## [27] train-rmse:0.393908 
+## [28] train-rmse:0.388502 
+## [29] train-rmse:0.386069 
+## [30] train-rmse:0.383505 
+## [31] train-rmse:0.381175 
+## [32] train-rmse:0.378720 
+## [33] train-rmse:0.373511 
+## [34] train-rmse:0.371282 
+## [35] train-rmse:0.368930 
+## [36] train-rmse:0.363906 
+## [37] train-rmse:0.361804 
+## [38] train-rmse:0.359493 
+## [39] train-rmse:0.357275 
+## [40] train-rmse:0.355228 
+## [41] train-rmse:0.353107 
+## [42] train-rmse:0.351097 
+## [43] train-rmse:0.348860 
+## [44] train-rmse:0.345640 
+## [45] train-rmse:0.343671 
+## [46] train-rmse:0.341489 
+## [47] train-rmse:0.339595 
+## [48] train-rmse:0.336511 
+## [49] train-rmse:0.334537 
+## [50] train-rmse:0.332724 
+## [51] train-rmse:0.329746 
+## [52] train-rmse:0.327733 
+## [53] train-rmse:0.324859 
+## [54] train-rmse:0.322931 
+## [55] train-rmse:0.320171 
+## [56] train-rmse:0.318295 
+## [57] train-rmse:0.316287 
+## [58] train-rmse:0.314480 
+## [59] train-rmse:0.311813 
+## [60] train-rmse:0.310068 
+## [61] train-rmse:0.307506 
+## [62] train-rmse:0.305820 
+## [63] train-rmse:0.303799 
+## [64] train-rmse:0.302171 
+## [65] train-rmse:0.299708 
+## [66] train-rmse:0.298136 
+## [67] train-rmse:0.295791 
+## [68] train-rmse:0.293850 
+## [69] train-rmse:0.292313 
+## [70] train-rmse:0.290839 
+## [71] train-rmse:0.288548 
+## [72] train-rmse:0.285601 
+## [73] train-rmse:0.284002 
+## [74] train-rmse:0.282138 
+## [75] train-rmse:0.280576 
+## [76] train-rmse:0.278445 
+## [77] train-rmse:0.275678 
+## [78] train-rmse:0.274156 
+## [79] train-rmse:0.272150 
+## [80] train-rmse:0.269526 
+## [81] train-rmse:0.267009 
+## [82] train-rmse:0.265314 
+## [83] train-rmse:0.263896 
+## [84] train-rmse:0.262539 
+## [85] train-rmse:0.261027 
+## [86] train-rmse:0.259559 
+## [87] train-rmse:0.257680 
+## [88] train-rmse:0.255969 
+## [89] train-rmse:0.254553 
+## [90] train-rmse:0.252800 
+## [91] train-rmse:0.251154 
+## [92] train-rmse:0.249471 
+## [93] train-rmse:0.247885 
+## [94] train-rmse:0.246153 
+## [95] train-rmse:0.244621 
+## [96] train-rmse:0.243425 
+## [97] train-rmse:0.241898 
+## [98] train-rmse:0.240454 
+## [99] train-rmse:0.238745 
+## [100]    train-rmse:0.237618</code></pre>
+<pre class="r"><code>p_xgb &lt;- predict(fit_xgb, as.matrix(dat[, 1:2]))
+table(z, p_xgb &gt;= .5)/nrow(dat)</code></pre>
+<pre><code>##        
+## z       FALSE TRUE
+##   FALSE   0.5  0.0
+##   TRUE    0.0  0.5</code></pre>
+<pre class="r"><code>p_grid &lt;- predict(fit_xgb, newdata = as.matrix(grid[, 1:2]))
+grid$z &lt;- factor((p_grid &gt;= 0.5)*1, labels = c(&#39;no&#39;, &#39;yes&#39;))
+ggplot(dat) + aes(x, y, colour = z) +
+  geom_point(data = grid, size = .5) +
+  geom_point() +
+  labs(x = &#39;x&#39;, y = &#39;y&#39;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2018-04-30-helix-nn_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>好吧，真是大杀器，贪婪算法就是能把你打哭。不过我们只是在训练集上看训练效果，从图中不难看出，overfit应该是很严重的。值得一提的是，gblinear的表现比gbtree差远了，说到底xgboost还是贪婪的树类模型，加上其他多余的设定自然会使效果大打折扣。</p>
+<p>随机森林已经没有心情测了，我是那么的看好样条方法，好气啊！</p>
+</div>

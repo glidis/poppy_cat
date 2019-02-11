@@ -1,0 +1,32 @@
+---
+title: R assign using boolean value 
+author: Glidis
+date: '2017-10-20'
+slug: 'assign'
+categories:
+  - R
+tags:
+  - r function
+---
+
+
+
+<p>用法来源于<code>Hmisc::cut2</code></p>
+<pre class="r"><code># 若判断式返回TRUE则合并，若返回FALSE则不合并
+c(1:3, if(TRUE)5)</code></pre>
+<pre><code>## [1] 1 2 3 5</code></pre>
+<pre class="r"><code>c(1:3, if(FALSE)5)</code></pre>
+<pre><code>## [1] 1 2 3</code></pre>
+<pre class="r"><code>c(1:3, NULL)</code></pre>
+<pre><code>## [1] 1 2 3</code></pre>
+<pre class="r"><code>##### 如果判断式返回FALSE则不更改y，若返回TRUE则将y的元素全部替换掉
+y &lt;- 1:2
+y[FALSE] &lt;- 3
+y</code></pre>
+<pre><code>## [1] 1 2</code></pre>
+<pre class="r"><code>y[TRUE] &lt;- 4
+y</code></pre>
+<pre><code>## [1] 4 4</code></pre>
+<pre class="r"><code>y[c(TRUE, FALSE)] &lt;- 5
+y</code></pre>
+<pre><code>## [1] 5 4</code></pre>
