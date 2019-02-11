@@ -15,13 +15,11 @@ tags:
 
 <p>在windows系统下用</p>
 <pre class="r"><code>as.Date(&#39;30aug2015&#39;, format = &#39;%d%b%Y&#39;)</code></pre>
-<pre><code>## [1] &quot;2015-08-30&quot;</code></pre>
+<pre><code>## [1] NA</code></pre>
 <p>返回NULL的原因是系统默认的LC_TIME中月和日是中文格式，解决方式如下</p>
 <pre class="r"><code>format(Sys.time(), &quot;%a %b %d %X %Y %Z&quot;)</code></pre>
-<pre><code>## [1] &quot;Thu Jul 26 16:15:52 2018 CST&quot;</code></pre>
+<pre><code>## [1] &quot;周二 1月 22 21:26:13 2019 CST&quot;</code></pre>
 <pre class="r"><code>Sys.setlocale(&quot;LC_TIME&quot;, &quot;USA&quot;) # Windows</code></pre>
-<pre><code>## Warning in Sys.setlocale(&quot;LC_TIME&quot;, &quot;USA&quot;): OS reports request to set
-## locale to &quot;USA&quot; cannot be honored</code></pre>
-<pre><code>## [1] &quot;&quot;</code></pre>
+<pre><code>## [1] &quot;English_United States.1252&quot;</code></pre>
 <pre class="r"><code>as.Date(&#39;30aug2015&#39;, format = &#39;%d%b%Y&#39;, tz=&quot;CST&quot;)</code></pre>
 <pre><code>## [1] &quot;2015-08-30&quot;</code></pre>

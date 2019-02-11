@@ -11,8 +11,12 @@ tags:
 
 
 
-<p>在/Volumes(隐藏文件夹)中有一个文件夹名字为OS X Base System，改掉即可，例如前面加个Black。 另外，如果选中UEFI模式，启动U盘必须是GPT格式， 修改方法如下：</p>
+<p>在/Volumes(隐藏文件夹)中有一个文件夹名字为OS X Base System，改掉即可，例如前面加个Black。
+另外，如果选中UEFI模式，启动U盘必须是GPT格式，
+修改方法如下：</p>
 <blockquote>
 <p>sudo diskutil partitionDisk USB-Device GPT JHFS+ VOLUME-NAME R</p>
 </blockquote>
-<p>其中<code>USB-Device</code>是要写入的盘，一般为<code>/dev/disk2</code>，若不确定， 在terminal中使用<code>diskutil list</code>命令， <code>VOLUME-NAME</code>可以用任意的大写字母代替，例如<code>USB</code>。</p>
+<p>其中<code>USB-Device</code>是要写入的盘，一般为<code>/dev/disk2</code>，若不确定，
+在terminal中使用<code>diskutil list</code>命令，
+<code>VOLUME-NAME</code>可以用任意的大写字母代替，例如<code>USB</code>。</p>
