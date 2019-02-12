@@ -5,7 +5,8 @@ date: '2019-02-12'
 slug: spark-udf-function
 categories:
   - Spark
-tags: [udf]
+tags: 
+  - udf
 ---
 
 只在spark shell中写过简单的udf函数，由于没有接触过java之类的语言，掉进几个坑里：
@@ -36,4 +37,4 @@ r_values
   - 将NULL全变为''  
   - cast(NULL as string) as xx  
   - 先生成不含xx列的df，然后df.withColumn("xx", lit(null).cast("string"))
-  
+

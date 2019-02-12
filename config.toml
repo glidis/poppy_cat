@@ -19,9 +19,10 @@ footnotereturnlinkcontents = "↩"
     name = "About"
     url = "/about/"
     weight = 2
-#[[menu.main]]
-#    name = "Test"
-#    url = "/test/"
+[[menu.main]]
+    name = "Test"
+    url = "/test/"
+    weight = 5
 [[menu.main]]
     name = "Categories"
     url = "/categories/"
