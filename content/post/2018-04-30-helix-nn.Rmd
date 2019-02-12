@@ -73,6 +73,8 @@ train <- function(x, y, hidden = 5, learn_rate = 1e-2, iterations = 1e4) {
 ```{r}
 x <- data.matrix(dat[, c('x', 'y')])
 z <- dat$z == 'yes'
+```
+```{r, eval=FALSE}
 mnet5 <- train(x, z, hidden = 30, iterations = 1e5)
 mean((mnet5$output > .5) == z)
 ```
@@ -87,7 +89,7 @@ grid <- expand.grid(x = seq(min(dat$x) - .5,
                              max(dat$y) + .5,
                              by = .05))
 ```
-```{r}
+```{r, eval=FALSE}
 ff_grid <- feedforward(x = data.matrix(grid[, c('x', 'y')]),
                        w1 = mnet5$w1,
                        w2 = mnet5$w2)
