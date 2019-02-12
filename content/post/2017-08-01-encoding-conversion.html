@@ -1,0 +1,20 @@
+---
+title: encoding conversion
+author: Glidis
+date: '2017-08-01'
+slug: encoding-conversion
+categories:
+  - linux
+tags:
+  - encoding
+---
+
+
+
+<div class="section level2">
+<h2>汉字编码转换</h2>
+<p><code>iconv -s -f GB2312 -t UTF-8 test.txt &gt; testnew.txt</code></p>
+<p>如果提示错误，可能是有些汉字在GB18030中有，但在GB2312中无，可以用</p>
+<p><code>iconv -s -f GB18030 -t UTF-8 test.txt &gt; testnew.txt</code></p>
+<p>或者直接用Notepad++手动转码。</p>
+</div>

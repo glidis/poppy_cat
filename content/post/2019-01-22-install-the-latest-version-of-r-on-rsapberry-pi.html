@@ -1,0 +1,52 @@
+---
+title: Install the Latest Version of R on Rsapberry Pi
+author: Glidis
+date: '2019-01-22'
+slug: install-the-latest-version-of-r-on-rsapberry-pi
+categories:
+  - R
+  - Raspberry
+tags:
+  - r install
+---
+
+
+
+<p>树莓派自带源的R版本较低，直接用<code>apt-get install</code>安装得到的R版本目前是3.3.3，而最新的R发布版本为3.5.2，许多package已经不支持3.3.3版本了。故需要自己手动编译source code。参考树莓派论坛上的一篇帖子，自己安装了3.5.2版本，步骤如下(在终端运行以下命令)：</p>
+<div id="apt-get" class="section level3">
+<h3>1. 万年不动的更新<code>apt-get</code></h3>
+<pre class="shell"><code>sudo apt-get update</code></pre>
+</div>
+<div id="build-rlinux" class="section level3">
+<h3>2. 安装build R所使用到的linux包</h3>
+<pre class="shell"><code>time sudo apt-get install -y gfortran libreadline6-dev libx11-dev libxt-dev \
+                               libpng-dev libjpeg-dev libcairo2-dev xvfb \
+                               libbz2-dev libzstd-dev liblzma-dev \
+                               libcurl4-openssl-dev \
+                               texinfo texlive texlive-fonts-extra</code></pre>
+<p>time 是为了统计安装时间。</p>
+</div>
+<div id="rsource-code" class="section level3">
+<h3>3. 下载R的source code</h3>
+<pre class="shell"><code>cd /usr/local/src
+sudo wget https://mirrors.shu.edu.cn/CRAN/src/base/R-3/R-3.5.2.tar.gz</code></pre>
+<p>用的是上海大学的镜像，在上海的下载速度挺不错的。</p>
+</div>
+<div id="source-code" class="section level3">
+<h3>4. 编译source code</h3>
+<pre class="shell"><code>sudo su - 
+cd /usr/local/src
+tar zxvf R-3.5.2.tar.gz
+cd R-3.5.2
+time ./configure
+time make
+time make install</code></pre>
+<p>先给自己提升为root权限，回到压缩包所在的文件夹，解压，进入解压后的文件夹，编译安装。make这一步骤巨慢无比，需要约50分钟。</p>
+</div>
+<div id="r" class="section level3">
+<h3>5. 测试R</h3>
+<p>先退出root权限，在命令行里输入<code>exit</code>即可。接下来测试R版本。</p>
+<pre class="shell"><code>which R
+R</code></pre>
+<p>over！</p>
+</div>

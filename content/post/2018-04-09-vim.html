@@ -1,0 +1,31 @@
+---
+title: Vim删除和匹配删除
+author: Glidis
+date: '2018-04-09'
+slug: vim
+categories:
+  - Vim
+tags:
+  - Vim
+  - delete
+---
+
+
+
+<div class="section level2">
+<h2>正常模式下</h2>
+<ul>
+<li>x向后删除，X向前删除，5x后删5个字符；</li>
+<li>dd删除整行，5dd向下删除5行；</li>
+<li>d0删除至行首，d$删除至行尾，dG删除至文档末尾（包括本行），dgg或d1G删除至文首（包括本行）；</li>
+<li>ggdG删除所有内容。</li>
+</ul>
+</div>
+<div class="section level2">
+<h2>命令模式下</h2>
+<ul>
+<li>:%d删除所有内容；</li>
+<li>:g/reg/d删除含有reg的所有行；</li>
+<li>:%s/reg//g替换所有reg为空。</li>
+</ul>
+</div>

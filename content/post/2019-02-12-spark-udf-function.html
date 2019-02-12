@@ -1,0 +1,41 @@
+---
+title: spark udf function
+author: Glidis
+date: '2019-02-12'
+slug: spark-udf-function
+categories:
+  - Spark
+tags: 
+  - udf
+---
+
+
+
+<p>只在spark shell中写过简单的udf函数，由于没有接触过java之类的语言，掉进几个坑里：</p>
+<div id="udfnull" class="section level3">
+<h3>UDF函数定义中要加入对null值的处理</h3>
+<p>在处理spark dataset时，有些列中含有null值，如果在UDF中不做处理，最终会报错。</p>
+<p>示例代码如下</p>
+<pre><code>def FOO(keys:String): String = {
+var r_values = &quot;&quot;
+r_values = keys match {
+case &quot;1&quot; =&gt; &quot;ONE&quot;
+case &quot;2&quot; =&gt; &quot;TWO&quot;
+case &quot;3&quot; =&gt; &quot;THREE&quot;
+case _ =&gt; keys
+}
+r_values
+}</code></pre>
+</div>
+<div id="spark-savemode-nulltypecolumn" class="section level3">
+<h3>spark SaveMode 不支持类型为NullType的Column的写入</h3>
+<p>在用spark.sql执行SQL语句时，如果有“NULL as xx”，则产生的xx列为NullType，无法save。<br />
+解决方案：</p>
+<ul>
+<li>将NULL全变为’’<br />
+</li>
+<li>cast(NULL as string) as xx<br />
+</li>
+<li>先生成不含xx列的df，然后df.withColumn(“xx”, lit(null).cast(“string”))</li>
+</ul>
+</div>
