@@ -3,7 +3,7 @@ title: Home
 ---
 
 
-[<img src="kk.png" style="max-width:15%;min-width:40px;float:right;" />](https://github.com/glidis)
+[<img src="/static/img/kk.png" style="max-width:15%;min-width:40px;float:right;" />](https://github.com/glidis)
 
 # 日常跑偏与点歪的科技树
 
