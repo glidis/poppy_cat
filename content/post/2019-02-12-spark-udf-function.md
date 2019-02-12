@@ -32,6 +32,7 @@ r_values
 
 在用spark.sql执行SQL语句时，如果有“NULL as xx”，则产生的xx列为NullType，无法save。  
 解决方案： 
+
   - 将NULL全变为''  
   - cast(NULL as string) as xx  
   - 先生成不含xx列的df，然后df.withColumn("xx", lit(null).cast("string"))

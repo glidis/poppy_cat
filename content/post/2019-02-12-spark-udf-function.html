@@ -211,9 +211,14 @@ r_values
 <div id="spark-savemode-nulltypecolumn" class="section level3">
 <h3>spark SaveMode 不支持类型为NullType的Column的写入</h3>
 <p>在用spark.sql执行SQL语句时，如果有“NULL as xx”，则产生的xx列为NullType，无法save。<br />
-解决方案： - 将NULL全变为’’<br />
-- cast(NULL as string) as xx<br />
-- 先生成不含xx列的df，然后df.withColumn(“xx”, lit(null).cast(“string”))</p>
+解决方案：</p>
+<ul>
+<li>将NULL全变为’’<br />
+</li>
+<li>cast(NULL as string) as xx<br />
+</li>
+<li>先生成不含xx列的df，然后df.withColumn(“xx”, lit(null).cast(“string”))</li>
+</ul>
 </div>
 
 
