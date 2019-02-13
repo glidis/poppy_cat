@@ -1,8 +1,8 @@
 ---
-title: spark udf function
+title: spark udf issues
 author: Glidis
 date: '2019-02-12'
-slug: spark-udf-function
+slug: spark-udf-issues
 categories:
   - Spark
 tags: 
