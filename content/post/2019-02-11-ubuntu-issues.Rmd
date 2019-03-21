@@ -12,6 +12,27 @@ tags:
 
 ## ubuntu issues
 
+### preparations
+
+1. enable ifconfig 
+```
+sudo apt install net-tools
+```
+2. enable ssh
+```
+sudo apt install openssh-server
+```
+3. 自动挂载硬盘  
+  - `sudo fdisk -l`  
+  - `sudo mkfs.ext4 /dev/sdxx`  
+  - `mkdir somewhere`
+  - `sduo mount /dev/sdxx somewhere`
+  - `sudo blkid` # get device UUID
+  - `sudo vim /etc/fstab` 
+  - add `UUID=4eea8cd8-dc9d-4479-955f-a496591215aa /home/kyoma/disk1 ext4 defaults 0 1` for example
+  - `sudo mount -a` # check 
+
+
 ### install latest version R
 
 1. add the relecant GPG key

@@ -14,33 +14,55 @@ tags:
 
 <div id="ubuntu-issues" class="section level2">
 <h2>ubuntu issues</h2>
+<div id="preparations" class="section level3">
+<h3>preparations</h3>
+<ol style="list-style-type: decimal">
+<li>enable ifconfig</li>
+</ol>
+<pre><code>sudo apt install net-tools</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>enable ssh</li>
+</ol>
+<pre><code>sudo apt install openssh-server</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li>自动挂载硬盘<br />
+</li>
+</ol>
+<ul>
+<li><code>sudo fdisk -l</code><br />
+</li>
+<li><code>sudo mkfs.ext4 /dev/sdxx</code><br />
+</li>
+<li><code>mkdir somewhere</code></li>
+<li><code>sduo mount /dev/sdxx somewhere</code></li>
+<li><code>sudo blkid</code> # get device UUID</li>
+<li><code>sudo vim /etc/fstab</code></li>
+<li>add <code>UUID=4eea8cd8-dc9d-4479-955f-a496591215aa /home/kyoma/disk1 ext4 defaults 0 1</code> for example</li>
+<li><code>sudo mount -a</code> # check</li>
+</ul>
+</div>
 <div id="install-latest-version-r" class="section level3">
 <h3>install latest version R</h3>
 <ol style="list-style-type: decimal">
-<li>add the relecant GPG key</li>
+<li><p>add the relecant GPG key</p>
+<pre><code>sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9</code></pre></li>
+<li><p>add the relevant repository</p>
+<pre><code>sudo add-apt-repository &#39;deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/&#39;</code></pre></li>
+<li><p>update and install</p>
+<pre><code>sudo apt update
+sudo apt install r-base -y</code></pre></li>
+<li><p>install R packages</p>
+<pre><code>sudo -i R</code></pre></li>
 </ol>
-<p><code>sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9</code></p>
-<ol start="2" style="list-style-type: decimal">
-<li>add the relevant repository</li>
-</ol>
-<p><code>sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'</code></p>
-<ol start="3" style="list-style-type: decimal">
-<li>update and install</li>
-</ol>
-<p><code>sudo apt update    sudo apt install r-base -y</code></p>
-<ol start="4" style="list-style-type: decimal">
-<li>install R packages</li>
-</ol>
-<p><code>sudo -i R</code></p>
 </div>
 <div id="install-rstudio-server" class="section level3">
 <h3>install rstudio server</h3>
 <ol style="list-style-type: decimal">
-<li>64bit Rstudio version1.1.463</li>
-</ol>
-<p><code>sudo apt-get install gdebi-core    wget https://download2.rstudio.org/rstudio-server-1.1.463-amd64.deb    sudo gdebi rstudio-server-1.1.463-amd64.deb</code></p>
-<ol start="2" style="list-style-type: decimal">
-<li>navigate a web browser to</li>
+<li><p>64bit Rstudio version1.1.463</p>
+<pre><code>sudo apt-get install gdebi-core
+wget https://download2.rstudio.org/rstudio-server-1.1.463-amd64.deb
+sudo gdebi rstudio-server-1.1.463-amd64.deb</code></pre></li>
+<li><p>navigate a web browser to</p></li>
 </ol>
 <blockquote>
 <p><a href="http://" class="uri">http://</a><server-ip>:8787</p>
@@ -53,45 +75,41 @@ tags:
 <h3>install Anaconda</h3>
 <ol style="list-style-type: decimal">
 <li><p>go to <a href="https://www.anaconda.com/distribution/" class="uri">https://www.anaconda.com/distribution/</a>, find Linux 64-Bit(x86) installer, copy the link address. for example <a href="https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh" class="uri">https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh</a></p></li>
-<li><p>download the Anaconda Script</p></li>
+<li><p>download the Anaconda Script</p>
+<pre><code>wget https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh</code></pre></li>
+<li><p>run the script and make selections</p>
+<pre><code>sh Anaconda3-2018.12-Linux-x86_64.sh</code></pre></li>
 </ol>
-<p><code>wget https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh</code></p>
-<ol start="3" style="list-style-type: decimal">
-<li>run the script and make selections</li>
-</ol>
-<p><code>sh Anaconda3-2018.12-Linux-x86_64.sh</code></p>
 </div>
 <div id="jupyter-notebook-remote-settings" class="section level3">
 <h3>jupyter notebook remote settings</h3>
 <ol style="list-style-type: decimal">
-<li>generate <code>jupyter_notebook_config.py</code></li>
-</ol>
-<p><code>cd ~    jupyter notebook --generate-config</code></p>
-<ol start="2" style="list-style-type: decimal">
-<li>there are two ways to generate jupyter-notebook password, either is fine.</li>
-</ol>
+<li><p>generate <code>jupyter_notebook_config.py</code></p>
+<pre><code>cd ~
+jupyter notebook --generate-config</code></pre></li>
+<li><p>there are two ways to generate jupyter-notebook password, either is fine.</p>
 <ul>
-<li><p>automatically, password saved at <code>jupyter_notebook_config.json</code></p>
-<p><code>jupyter-notebook password</code></p></li>
+<li>automatically, password saved at <code>jupyter_notebook_config.json</code></li>
+</ul>
+<pre><code>jupyter-notebook password</code></pre>
+<ul>
 <li><p>manually, generate hashed password in python</p>
-<p><code>from notebook.auth import passwd  passwd()</code></p>
+<pre><code>from notebook.auth import passwd
+passwd()</code></pre>
 <p>copy the out, e.g. <code>'sha1:67c9e60bb8b6:9ffede0825894254b2e042ea597d771089e11aed'</code></p>
 <p>edit <code>~/.jupyter/jupyter_notebook_config.py</code>,</p>
 <p>and add</p>
 <p><code>c.NotebookApp.password = u'sha1:67c9e60bb8b6:9ffede0825894254b2e042ea597d771089e11aed'</code></p></li>
-</ul>
-<ol start="3" style="list-style-type: decimal">
-<li>set ip and port</li>
-</ol>
+</ul></li>
+<li><p>set ip and port</p>
 <p>edit <code>~/.jupyter/jupyter_notebook_config.py</code>,</p>
 <p>and add</p>
-<p><code>c.NotebookApp.ip='0.0.0.0'    c.NotebookApp.open_browser = False    c.NotebookApp.port = 8888 #可自行指定一个端口, 访问时使用该端口</code></p>
-<ol start="4" style="list-style-type: decimal">
-<li>start jupyter notebook session</li>
-</ol>
-<p><code>jupyter-notebook</code></p>
-<ol start="5" style="list-style-type: decimal">
-<li>navigate a web browser to</li>
+<pre><code>c.NotebookApp.ip=&#39;0.0.0.0&#39;
+c.NotebookApp.open_browser = False
+c.NotebookApp.port = 8888 #可自行指定一个端口, 访问时使用该端口</code></pre></li>
+<li><p>start jupyter notebook session</p>
+<pre><code>jupyter-notebook </code></pre></li>
+<li><p>navigate a web browser to</p></li>
 </ol>
 <blockquote>
 <p><a href="http://" class="uri">http://</a><server-ip>:8888</p>
@@ -100,12 +118,12 @@ tags:
 <div id="other-ubuntu-issues" class="section level3">
 <h3>other ubuntu issues</h3>
 <ul>
-<li>close laptop lid but do nothing</li>
-</ul>
+<li><p>close laptop lid but do nothing</p>
 <ol style="list-style-type: decimal">
 <li><code>sudo vim /etc/systemd/logind.conf</code></li>
 <li>Add a line <code>HandleLidSwitch=ignore</code></li>
 <li><code>sudo service systemd-logind restart</code></li>
-</ol>
+</ol></li>
+</ul>
 </div>
 </div>
