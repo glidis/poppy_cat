@@ -30,7 +30,7 @@ sudo vim /etc/ssh/sshd_config  ## change Port 22 to Port xxxx and uncomment, the
   - `sduo mount /dev/sdxx somewhere`
   - `sudo blkid` # get device UUID
   - `sudo vim /etc/fstab` 
-  - add `UUID=4eea8cd8-dc9d-4479-955f-a496591215aa /home/kyoma/disk1 ext4 defaults 0 1` for example
+  - add `UUID=4eea8cd8-dc9d-4479-955f-a496591215aa /home/kyoma/disk1 ext4 defaults 0 1`
   - `sudo mount -a` # check 
 
 
