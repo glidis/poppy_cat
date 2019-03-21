@@ -36,7 +36,7 @@ sudo vim /etc/ssh/sshd_config  ## change Port 22 to Port xxxx and uncomment, the
 
 ### install latest version R
 
-1. add the relecant GPG key
+1. add the relevant GPG key
 
    ```
    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
@@ -45,7 +45,7 @@ sudo vim /etc/ssh/sshd_config  ## change Port 22 to Port xxxx and uncomment, the
 2. add the relevant repository 
 
    ```
-   sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
+   sudo add-apt-repository 'deb https://mirrors.tongji.edu.cn/CRAN/bin/linux/ubuntu bionic-cran35/'
    ```
 
 3. update and install
