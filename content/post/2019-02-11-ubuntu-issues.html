@@ -23,7 +23,8 @@ tags:
 <ol start="2" style="list-style-type: decimal">
 <li>enable ssh</li>
 </ol>
-<pre><code>sudo apt install openssh-server</code></pre>
+<pre><code>sudo apt install openssh-server
+sudo vim /etc/ssh/sshd_config  ## change Port 22 to Port xxxx and uncomment, then restart</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>自动挂载硬盘<br />
 </li>
