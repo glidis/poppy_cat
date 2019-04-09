@@ -12,9 +12,31 @@ tags:
 
 ## ubuntu issues
 
+### preparations
+
+1. enable ifconfig 
+```
+sudo apt install net-tools
+```
+2. enable ssh
+```
+sudo apt install openssh-server
+sudo vim /etc/ssh/sshd_config  ## change Port 22 to Port xxxx and uncomment, then restart
+```
+3. 自动挂载硬盘  
+  - `sudo fdisk -l`  
+  - `sudo mkfs.ext4 /dev/sdxx`  
+  - `mkdir somewhere`
+  - `sduo mount /dev/sdxx somewhere`
+  - `sudo blkid` # get device UUID
+  - `sudo vim /etc/fstab` 
+  - add `UUID=4eea8cd8-dc9d-4479-955f-a496591215aa /home/kyoma/disk1 ext4 defaults 0 1`
+  - `sudo mount -a` # check 
+
+
 ### install latest version R
 
-1. add the relecant GPG key
+1. add the relevant GPG key
 
    ```
    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
@@ -23,7 +45,7 @@ tags:
 2. add the relevant repository 
 
    ```
-   sudo add-apt-repository 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
+   sudo add-apt-repository 'deb https://mirrors.tongji.edu.cn/CRAN/bin/linux/ubuntu bionic-cran35/'
    ```
 
 3. update and install
