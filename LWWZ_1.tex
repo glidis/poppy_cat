@@ -1,0 +1,758 @@
+\documentclass[12pt]{article}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage[export]{adjustbox}
+\usepackage{multirow}
+%\usepackage{chicago}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{epstopdf}
+\usepackage{rotating}
+%\usepackage{hyperref}
+\usepackage{mathrsfs}
+\setcounter{MaxMatrixCols}{10}
+\usepackage{setspace}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[hypertexnames=false]{hyperref}
+%\usepackage[hidelinks]{hyperref}
+\hypersetup{
+	colorlinks,
+	citecolor=black,
+	linkcolor=blue!70!black,
+	urlcolor=blue!70!black}
+\usepackage[normalem]{ulem}
+\usepackage{color}
+
+\usepackage{catoptions}
+\makeatletter
+%\def\theoremautorefname{theorem}
+\def\figureautorefname{figure}
+\def\tableautorefname{table}
+\def\Autoref#1{%
+	\begingroup
+	\edef\reserved@a{\cpttrimspaces{#1}}%
+	\ifcsndefTF{r@#1}{%
+		\xaftercsname{\expandafter\testreftype\@fourthoffive}
+		{r@\reserved@a}.\\{#1}%
+	}{%
+		\ref{#1}%
+	}%
+	\endgroup
+}
+\def\testreftype#1.#2\\#3{%
+	\ifcsndefTF{#1autorefname}{%
+		\def\reserved@a##1##2\@nil{%
+			\uppercase{\def\ref@name{##1}}%
+			\csn@edef{#1autorefname}{\ref@name##2}%
+			\autoref{#3}%
+		}%
+		\reserved@a#1\@nil
+	}{%
+		\autoref{#3}%
+	}%
+}
+\makeatother
+
+\def\equationautorefname~#1\null{%
+	(#1)\null
+}
+
+
+
+\newcommand{\bq}[1]{\begin{equation}\label{#1}}
+	\newcommand{\eq}{\end{equation}}
+\newcommand{\bqn}{\begin{eqnarray}}
+	\newcommand{\eqn}{\end{eqnarray}}
+\newcommand{\bqns}{\begin{eqnarray*}}
+	\newcommand{\eqns}{\end{eqnarray*}}
+\newcommand{\basehalf}{\def\baselinestretch{0.8}}
+%\newcommand{\basetwee}{\def\baselinestretch{1.4}}
+%\newcommand{\baseeen}{\def\baselinestretch{1}}
+%\newcommand{\lne}[1]{\multicolumn{#1}{c}{\rule{2em}{0.1pt}}}
+\newcommand{\hlne}{\rule[1ex]{2em}{0.1pt}}
+\newcommand{\dd}{\textrm{\rm d}}
+\newcommand{\Nn}{\textrm{\rm N}}
+\newcommand{\Ee}{\textrm{\rm E}}
+\newcommand{\Vv}{\textrm{\rm V}}
+\newcommand{\Pp}{\textrm{\rm P}}
+\newcommand{\Vvar}{\textrm{\rm Var}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\VaR}{\textrm{VaR}}
+\newcommand{\myIt}{\mathcal{I}_{t|t-1}}
+\newcommand{\myC}{\mathcal{C}}
+\newcommand{\myD}{\mathcal{D}}
+\newcommand{\myK}{\mathcal{K}}
+\newcommand{\myL}{\mathcal{B}}
+\newcommand{\myS}{\mathcal{S}}
+\newcommand{\Qm}{\mathbb{Q}}
+\newcommand{\Pm}{\mathbb{P}}
+\newcommand{\Lp}{\left(}
+\newcommand{\Rp}{\right)}
+\newcommand{\Lb}{\left[}
+\newcommand{\Rb}{\right]}
+\newcommand{\Ls}{\left\{}
+\newcommand{\Rs}{\right\}}
+\newcommand{\Ld}{\left|}
+\newcommand{\Rd}{\right|}
+\newcommand{\bl}{\color{black!40!blue}}
+%\newcommand{\bl}{\color{red}}
+\newcommand{\por}{\color{blue}}
+%\newcommand{\bl}{\color{black}}
+%\newcommand{\gr}{\color{forestgreen}}
+%\definecolor{green}{rgb}{0.1,0.6,0.3}
+\newcommand{\gr}{\color{black!60!green}}
+\newcommand{\rd}{\color{black!30!red}}
+\newcommand{\bk}{\color{black}}
+\newcommand{\gray}{\color{black!30}}
+\newcommand{\myW}{{W}}
+\newcommand{\mydiag}{\textrm{\rm diag}}
+\newcommand{\myvec}{\textrm{\rm vec}}
+\newcommand{\myvech}{\textrm{\rm vech}}
+\newcommand{\ep}{\varepsilon}
+\newcommand{\trans}{^{\top}}
+\newcommand{\scite}[1]{\shortciteN{#1}}
+\newcommand{\unitmat}{\textrm{\rm I}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+%\newtheorem{definition}{Definition}
+\newtheorem{condition}{Condition}
+\newtheorem{definition}{Definition}
+\newcommand{\gsout}[1]{{\gr\sout{#1}}}
+\newcommand{\bsout}[1]{{\bl\sout{#1}}}
+\numberwithin{equation}{section}
+\usepackage{threeparttable}
+\usepackage{bbm}
+\usepackage{natbib}
+\newcommand\cites[1]{\citeauthor{#1}'s\ (\citeyear{#1})}
+\usepackage{caption}
+\newcommand\fnote[1]{\captionsetup{font=small}\caption*{#1}}
+\newcommand{\GG}[1]{}
+
+
+\begin{document}
+
+
+\title{What Drives Fluctuations in Exchange Rate Growth in Emerging Markets -- A Multi-Level Dynamic Factor Approach
+\thanks{%
+ E-mail addresses: Clark Liu: Assistant Professor, PBC School of Finance, Tsinghua University,   \href{mailto:liuyue@pbcsf.tsinghua.edu.cn}{\nolinkurl{liuyue@pbcsf.tsinghua.edu.cn}};
+ Ben Zhe Wang: Lecturer at the Department of Economics, Macquarie University, \href{mailto:ben.wang@mq.edu.au}{\nolinkurl{ben.wang@mq.edu.au}};
+ Huanhuuan Wang: Associate Professor, School of Law, East China Normal University, \href{mailto:ahwanghuanhuan@163.com}{\nolinkurl{ahwanghuanhuan@163.com}};
+ Ji Zhang: Assistant Professor, PBC School of Finance, Tsinghua University,  \href{mailto:zhangji@pbcsf.tsinghua.edu.cn}{\nolinkurl{zhangji@pbcsf.tsinghua.edu.cn}}. }
+}
+\author{Clark Liu, Ben Zhe Wang, Huanhuan Wang, Ji Zhang\footnote{Corresponding author}}
+
+
+
+
+
+\date{}
+\maketitle
+\begin{abstract}
+Exchange rates in many emerging economies have been historically volatile. We use a dynamic hierarchical factor model to investigate the driving forces behind these fluctuations in exchange rate growth and find that in recent years, especially since the Great Recession, the common (world) factor has become more important. We also find that since 2009, U.S. monetary policy and Chinese economic growth, have had much greater impacts on emerging market exchange rate growth fluctuations. The historical decomposition indicates that 18.8\% and 23\% of the variations in the world factor after 2009 can be explained by U.S. monetary policy shock and Chinese industrial production shock, respectively.
+
+{\bf Keywords: Exchange rate, Emerging economy, Dynamic factor model, US monetary policy, Chinese slowdown}
+
+{\bf JEL Classification: F3, E52, C32}
+\end{abstract}
+%\footnotetext[1]{I would like to thank my advisor James D. Hamilton for invaluable advice and Davide Debortoli, Shigeru Fujita, Garey Ramey, and Irina A. Telyukova for comments and suggestions. I am also grateful to Francesco Furlanetto and Nicolas Groshenny for generously sharing their data.}
+%\footnotetext[1]{We would like to thank Jun Ma for valuable suggestions.}
+
+\newpage
+\section{Introduction}
+The foreign exchange market, highly volatile though it is, sometimes witnesses co-movement of exchange rates among certain countries, especially as for emerging markets more prone to be affected. The Argentine Peso, South African Rand, Russian Ruble and Turkish Lira, for example, simultaneously plunged, respectively 23\%, 7.5\%, 7\% and 6\% in the opening month of 2014. It was ``the single biggest sell off in emerging market currencies since 2009''. Despite that domestic factors had been identified as triggers,  analysts also pointed to some outside forces such as pull-back of stimulus by U.S. Federal Reserve to propping up its own economies.  As we can also tell, the devaluation contagiously went cross continents, providing the quite first hint of our first concern here: do any global factors, beyond national or regional economic conditions, inducing co-movement of exchange rates in emerging markets exist?
+
+To address this issue, we use a dynamic hierarchical factor model proposed by \cite{Moenchetal2013}. It uses multi-level factor models to characterize within- and between-block variations as well as idiosyncratic noise in dynamic panels. We extract the components common to all emerging market economies from local components including regional factors specific to each continent and country-specific factors. We find that, for the period of 1996 to 2014, local components were major driving forces of exchange rates changes in emerging market economies. The common component (which we also refer to as the world factor or global factor), in the meantime, only accounts for less than 20\% of the variations in exchange rates of the emerging market economies on average. However, in recent years, the impact of the common component has become more prominent, accounting for almost 40\% of the variations on average.
+
+Given the existence of common components playing a part, a follow-up question surrounds our main concern becomes: What are those economic forces behind the world factor? Bearing in mind that driving forces and shocks that are influential to exchange rate changes in emerging markets are vast and sophisticated, we do not intent to dig out all possible explanations. Our main focus is the impact of the U.S. and Chinese economy, especially that of the U.S. monetary policy shocks and China's economic slowdown. As two of the leading economies, the policies and economic conditions of the U.S. and China do have spill-over effect on the rest of the world. As an example, when in a phrase of quantitative easing (QE), much of the capital the Federal Reserve injected into the economy flowed to emerging markets, and the tapering of QE thus meant that liquidity was drying up. Also, the performance of economic growth in China may affect volatility of exchange rate in emerging markets, since China is not only the world's largest emerging market economy, but also the chief buyer of exports from other emerging market countries.
+
+We thus use a VAR to investigate whether, and if it is so, how the U.S. and Chinese economies affect the world factor of the exchange rate changes in the emerging market economies. We lay our eyes on both magnitude of the influence as well as the differential effect on the world factor across time. We find that shocks to U.S. monetary policy and Chinese economy are two of the most important for the fluctuations of the world factor of changes in emerging markets' exchanges rates since the end of 2008. The historical decomposition shows that 18.8\% and 23\% of the variations in the world factor after 2009 can be explained by U.S. monetary policy shock and Chinese industrial production shock, respectively. The variance decomposition further indicates that, since 2009, U.S. and Chinese shocks respectively account for 12\% and 12\%, of the fluctuations in the world factor. Further, 3\%(9\%) of the forecast error of the world factor can be explained by U.S. monetary policy shocks, and 7\%(12\%) can be explained by Chinese shocks in the short-run(long-run). These numbers are significantly larger than those before 2009. The results imply that the U.S. monetary policy and Chinese economic performance matter in terms of common exchange rate fluctuations in those markets. The difference in their impact before and after 2009 we captured is reinforced by our finding that world factor becomes more critical in tracing stimulus of exchange rate change in emerging markets.
+
+This paper is related to four strands of literature. The first to come is literature in investigating links between currency movements. In their seminal work, \cite{BaillieBollerslev1989} find that a panel of seven currencies from industrialized economies are cointegrated, which is consistent with the hypothesis that there is one long-run relationship among these exchange rates. After examining five currencies in the ASEAN countries, \cite{LeeAzali2010} find that there are two cointegrating relationships for the post-crisis period, and the currencies are not cointegrated for the pre-crisis period. \cite{FrankelRose1996} constructs panel of annual exchange rate data for over 100 developing countries and investigate the factors contribute to currency crisis. Besides national factors, their results point out an important role of foreign interest rates, which substantially affect capital flows. Similarly, \cite{PR2005} test for cointegration among a group of pacific Basin countries over the period 1980-1998, and find that stock and foreign exchange markets are positively related to the U.S. stock market, regardless of adoption of foreign exchange restrictions. The currency links among emerging markets are potentially facilitated by regional financial integrations, in which authorities in Asia in particular are taking steps to accelerate the process (\cite{GCH2007}).
+
+Second, there is a vast literature on exchange rate forecasting. \cite{EngelMarkWest2015} constructed factors from a cross-section of exchange rates and use the idiosyncratic deviations from these factors to forecast exchange rates. \cite{BalkeMaWohar2013} started with the asset pricing approach of Engel and West, and then examined the degree to which fundamentals can explain exchange rate fluctuations. \cite{Verdelhan2012} studied the share of systematic variation in bilateral exchange rates. To the best of our knowledge, our paper is the first study to investigate the co-movement of emerging market exchange rates and the main forces behind them.
+
+Third, the methodology used in this paper belongs to the literature on dynamic factor models. \cite{KoseOtrokWhiteman2003} used multilevel factor models to investigate international business cycles, and \cite{StockWatson1989} adopted a similar methodology to analyze national and regional factors in housing construction. Different from the top-down approach taken by \cite{KoseOtrokWhiteman2003}, however, \cite{Moenchetal2013} undertook a bottom-up application without making an assumption that requires that level components be orthogonal to the global factor.
+
+Fourth, this paper is also related to the literature on the spillover effect of the U.S. monetary policy on emerging markets. Mackowiak (2007) investigated whether external shocks are an important source of macroeconomic fluctuations in emerging markets and found that ``when the U.S. sneezes, emerging markets catch a cold''. \cite{ChenFiladoHeZhu2015} studied the impact of US quantitative easing (QE) on both the emerging and advanced economies, and found that the effects of QE are sizeable and vary across economies. \cite{HoZhangZhou2018} used a FAVAR approach to examine how the U.S. unconventional monetary policy affected the Chinese economy. Different from these papers, our study focuses on the spillover impact of the U.S. monetary policy on exchange rates fluctuations in emerging markets.
+
+The remainder of this paper is structured as follows. Section 2 introduces the methodology. Section 3 describes the data. Section 4 reports the empirical results, and Section 5 concludes and discusses findings.
+\section{Methodology}
+\subsection{Dynamic factor model}
+We adopt a two-step empirical analysis approach in this paper. By firstly using statistical model to extract the common component for exchange rate fluctuations in emerging markets, we further investigate factors affecting the common component. Particularly, we focus on the impacts of the U.S. and Chinese economy on the exchange rate fluctuations in emerging market, especially that of the U.S. monetary policy and Chinese economic slowdown.
+
+The statistical model we use is the dynamic hierarchical factor model introduced by \cite{Moenchetal2013}, which characterizes within- and between-block variations and also idiosyncratic noise in dynamic panels. Herein we consider a 3-level model. Let $N_r$ denote the number of countries in region $r=1,...,R$, and let $N=N_1+...+N_R$ be the total number of countries. The length of the time series for each country is $T$. In the model, the observed variable, the changes in exchange rates in the emerging market, $y_{rnt}$, depends on several latent factors, including the world factor, $F_t$, the regional factors or continent-specific factor, $G_{rt}=(G_{r1t},...,G_{rK_{Gr}t})$, where $K_{Gr}$ is the number of regional factors for Region $r$, and the country-specific factor, $e_{yrnt}$.
+\begin{equation}
+y_{rnt}=\lambda^n_{Gr}(L)G_{rt}+e_{yrnt},
+\label{eq:Model_G}
+\end{equation}
+\begin{equation}
+G_{rjt}=\lambda^j_{Fr}(L)F_{t}+e_{Grnt},
+\label{eq:Model_F}
+\end{equation}
+%\begin{equation}
+%\psi_{F,k}(L)F_{kt}=\epsilon_{Fkt}.
+%\end{equation}
+where $\lambda^n_{Gr}$ and $\lambda^j_{Fr}$ are distributed lag of loadings on the continent-specific factors and the world factor, $e_{Grnt}$ is the continent variations.
+
+To close the model, the country-specific factors, the continent-specific factors, and world factors are assumed to follow stationary, normally distributed autoregressive processes of order $q_{yrn}$, $q_{Gr}$, and $q_{F}$, respectively. That is,
+\begin{eqnarray*}
+&&\Psi_{F}(L)F_t=\epsilon_{Ft}\,\,\,\,\,\,\epsilon_{F}\sim N(0,\sigma^2_F),\\
+&&\Psi_{G.rj}(L)e_{Grnt}=\epsilon_{Grjt}\,\,\,\,\,\,\epsilon_{Grj}\sim N(0,\sigma^2_{Grj})\,\,\,\,\,\, j=1,...,K_{Gr},\\
+&&\Psi_{y.rn}(L)e_{yrnt}=\epsilon_{yrnt}\,\,\,\,\,\,\epsilon_{yrn}\sim N(0,\sigma^2_{yrn})\,\,\,\,\,\, n=1,...,N_r.
+\end{eqnarray*}
+
+Factors are extracted by using MCMC, and the main steps are:
+\begin{itemize}
+\item[1] Organize the data into blocks. Get initial values for $\{F_t\}$ and $\{G_t\}$ using principal components, and produce initial values for $\Lambda=(\Lambda_G, \Lambda_F)$, $\Psi=(\Psi_G, \Psi_F, \Psi_Y)$, and $\Sigma=(\Sigma_G, \Sigma_F, \Sigma_Y)$,.
+\item[2] Conditional on $\Lambda$, $\Psi$, $\Sigma$, $\{F_t\}$, and the data $y_{rnt}$, draw $\{G_t\}$.
+\item[3] Conditional on $\Lambda$, $\Psi$, $\Sigma$, and $\{G_t\}$, draw $\{F_t\}$.
+\item[4] Conditional on $\{F_t\}$ and $\{G_t\}$, draw $\Lambda$, $\Psi$, and $\Sigma$.
+\item[5] Return to 2.
+\end{itemize}
+
+The total unconditional variance for each individual variable, $y_{rnt}$, can be decomposed according to
+\begin{equation}
+Var(y_{rn})=\gamma'_{F.rn}vec(Var(F))+\gamma'_{G.rn}vec(Var(e_{Gr}))+vec(Var(e_{yrn}))
+\label{eq:VD_ng}
+\end{equation}
+where the $\gamma$'s are functions of loadings on factors $\lambda$'s.
+%\begin{equation}
+%\gamma'_{F.rn}=(\sum_{l=0}^{l_G}\lambda'_{G.rs}(l)\otimes\lambda'_{G.rs}(l))\times(\sum_{l=1}^{l_F}\lambda'_{F.r}(l)\otimes\lambda'_{F.r}(l))
+%\label{eq:VD_WF}
+%\end{equation}
+%\begin{equation*}
+%\gamma'_{G.rn}=\sum_{l=0}^{l_G}\lambda'_{G.rs}(l)\otimes\lambda'_{G.rs}(l)
+%\end{equation*}
+%\begin{equation*}
+%vec(Var(F))=[I-\sum_{q=1}^{q_F}(\Psi_{F.q}\otimes\Psi_{F.q})]^{-1}vec(\Sigma_F)
+%\end{equation*}
+%\begin{equation*}
+%vec(Var(e_{Gr}))=[I-\sum_{q=1}^{q_{Gr}}(\Psi_{G.rq}\otimes\Psi_{G.rq})]^{-1}vec(\Sigma_{G_r})
+%\end{equation*}
+%\begin{equation*}
+%vec(Var(e_{yrnt}))=[1-\sum_{q=1}^{q_{yrsn}}\Psi^2_{y.rsnq}]^{-1}\times\sigma^2_{yrn},
+%\end{equation*}
+%where $\gamma'_{F.rn}$ and $\gamma'_{G.rn}$ are functions of parameters in $\lambda^n_{Gr}$ and $\lambda^j_{Fr}$.
+
+The variance shares of the world factor is denoted by $Share_{WF}$, and measured as
+\begin{equation}
+Share_{WF}=\frac{\gamma'_{F.rn}vec(Var(F))}{Var(y_{rn})}.
+\label{eq:VD_WF}
+\end{equation}
+
+A more direct way to express how to decompose movements in $y_{n,t}$ into world, regional, and country-specific factors follows Del Negro and Otrok (2005, JME):
+\begin{equation}
+v_n(t_0,t_1))=\frac{\sum_{t=t_0}^{t_1}(\lambda^n_{G.r}\lambda^j_{F.r}F_t)^2}{\sum_{t=t_0}^{t_1}(\lambda^n_{G.r}\lambda^j_{F.r}F_t)^2+\sum_{t=t_0}^{t_1}(\lambda^n_{G.r}e_{Grt})^2+\sum_{t=t_0}^{t_1}(e_{yrnt})^2}.
+\label{eq:VD_negro}
+\end{equation}
+This variance decomposition is computed for each country both for the full sample and the sub-samples.
+
+\subsection{VAR analysis}
+After extracting the world factor of the exchange rate changes in emerging market countries, we turn to VAR to analyze the forces that influence the world factor. At the beginning of 2014, an announcement of the tapering of QE by the Federal Reserve was followed by emerging market exchange rates swings. This turbulence in emerging countries currency market naturally gives us the impression that U.S. monetary policy has a big impact on the value of emerging markets' currencies. Is this correct? Chinese slowdown may be an alternative to explain the co-movement of emerging market exchange rate fluctuations. How important is the Chinese economy in terms of these fluctuations? We hereby use the Bayesian vector autoregression (BVAR), proposed by Sims and Zha (1998), with 1-month lag (chosen according to AIC and BIC statistics). There are 9 variables in the BVAR system in the following order: U.S. industrial production growth ($IND_{US,t}$), U.S. CPI inflation ($CPI_{US,t}$), U.S. effective Federal funds rate or shadow rate the zero lower bound ($FFR_t$), Chinese industrial production growth ($IND_{CN,t}$), Chinese CPI inflation ($CPI_{CN,t}$), Chinese money supply ($M2_{CN,t}$), emerging market industrial production index ($IND_{EM,t}$), emerging market inflation ($CPI_{EM,t}$), and the world factor of the emerging markets' exchange rate ($F_t$).
+
+The VAR system proceeded as follows:
+\begin{eqnarray}
+\left[
+\begin{aligned}
+IND_{US,t}\\CPI_{US,t}\\FFR_t\\IND_{CN,t}\\CPI_{CN,t}\\M2_{CN,t}\\IND_{EM,t}\\CPI_{EM,t}\\WF_t
+\end{aligned}
+\right]=A(L)\left[
+\begin{aligned}
+IND_{US,t-1}\\CPI_{US,t-1}\\FFR_{t-1}\\IND_{CN,t-1}\\CPI_{CN,t-1}\\M2_{CN,t-1}\\IND_{EM,t-1}\\CPI_{EM,t-1}\\WF_{t-1}\end{aligned}
+\right]+e_t.
+\label{eq:var1}
+\end{eqnarray}
+
+We identified structural shocks using Cholesky decomposition with the assumption that shocks of variables do not affect the variables ordered ahead contemporaneously.
+
+Considering the larger explanation ability of world factors in co-movements in the emerging market exchange rate fluctuations since 2008, with the advent of zero lower bound period of U.S. monetary policy and normalized slowdown of Chinese economic growth, we split the full sample into two sub-samples, one covering the ``before-zero-lower-bound'' period -- 1996M1 to 2008M11, and the other covering the ``zero-lower-bound'' period -- 2009M1 to 2016M3.
+
+\section{The data}
+ We identify the 20 emerging markets according to IMF classification. Among them, 1 is from Africa; 7 are from Europe; 5 are from Latin America, and the remaining 7 are from Asia. We use the monthly change in nominal exchange rates of these markets against U.S. dollars from 1996M1 to 2016M3 as the observed variables.  The data source was the IMF IFS database. \Autoref{fig:ex} plots the growth rates, that is, the log difference of nominal exchange rates of all the 20 countries. \Autoref{tab:sum_stat} reports the mean and standard deviation of the growth rate of the exchange rate for each currency.
+
+In the three-level model for country-level exchange rate growth, the bottom level is that of the countries. Each country belongs to one continent, and the continents constitute the block level. The world factor is extracted from the data for all the countries in the sample, the regional factors are extracted within each continent and the leftovers are the idiosyncratic or country-specific factors.
+
+We also use a set of variables for the VAR analysis, which includes U.S. industrial production, U.S. inflation, U.S. effective federal funds rate measured by Wu-Xia shadow rate during the zero lower bound period as in \cite{WuXia2016}, Chinese industrial production, Chinese CPI, Chinese money supply measured by $M2$, the emerging economy industrial production index, and the emerging market inflation index.
+\section{Empirical Results}
+\subsection{Exchange Rate Fluctuations and Factors}
+From \Autoref{fig:ex}, we observe that the exchange rate changes in emerging market countries, as represented by solid lines, were highly volatile before 2004, followed by a relatively ``peaceful period'' during 2005 and 2008, then jumped into a new volatile phase (more volatile than the ``peaceful period'' but still less volatile than the period before 2004) since the end of 2008. \Autoref{fig:Wfactors}-\ref{fig:Cfactors} show the impacts of the world factor, the regional factor and the country-specific factor on each country's exchange rate growth, respectively. Due to the infeasibility to find direct economic interpretation for factor itself, we therefore shift our emphasis to find out elements can be interpreted as the component of exchange rates change in country $n_j$ attributed to the factor. ``Impact of world factor'' in \Autoref{fig:Wfactors} is the factor $F_t$ multiplied by the loadings in Equation (\ref{eq:Model_G}) and (\ref{eq:Model_F}), $\lambda^j_{Fr}\lambda^n_{Gr}F_t$. Although there is only one common world factor for all countries, the loading before the world factors is specific to each country, so in \Autoref{fig:Wfactors}, each country has its own world factor line. Local factors (either the regional factor or the country-specific factor) affecting exchange rates are beyond sphere of our study since each country has its own economic condition, political situation, institutional design, and other features. All these differences are ought to have significant impacts on the exchange rate. Among the 20 countries, several countries drew our special attention. In 2013, Morgan Stanley declared the Brazilian Real, the Indonesian Rupiah, the South African Rand, the Indian Rupee, and the Turkish Lira as the ``Fragile Five'', or the troubled emerging market currencies under the most pressure against the U.S. dollar. ``High inflation, weakening growth, large external deficits, and in some cases, exposure to the China slowdown, and high dependence on fixed income inflows leave these currencies vulnerable,'' wrote Morgan Stanley analysts in an August 2014 research note. %The top panel of \Autoref{fig:5country} plots the nominal exchange rates for the ``Fragile Five''.
+We find that during the Asian Financial Crisis, the Indonesian Rupiah suffered badly. Since this crisis was not a worldwide one, the estimated world factor did not capture the wild swings in the Indonesian Rupiah, while regional and country-specific factors took effect. The Brazil Real experienced an irregular appreciation period round 1994 and then dropped back, mainly due to the introduction of modern Real on July 1, 1994. Shortly after that, the Real unexpectedly gained value against the U.S. dollar due to large capital inflows in late 1994 and 1995. During that period, it attained its maximum dollar value ever, about US\$1.20. Between 1996 and 1998, however, the exchange rate was tightly controlled by the Central Bank, resulting in a slow and smooth depreciation of Real against the dollar, dropping from near 1:1 to about 1.2:1 by the end of 1998. This appreciation is mainly affected by the country-specific factor. Through investigating the factors and fluctuations of exchange rate of the ``Fragile Five'', we can get the confidence that the dynamic hierarchical factor model does a good job in capturing the fluctuations in exchange rate growth and distinguishing common components from local ones.
+
+
+Comparing Figures \ref{fig:Wfactors} to \ref{fig:Cfactors}, we find that local factors, including regional factors and country-specific factors, play relatively more important roles in the exchange rate fluctuations than the world factor. However, the impact of world factor becomes larger from 2009, and the size of the world factor also spiked at the end of 2008. As forthe five currencies, despite that the importance of world factor increases since the Great Recession, its explaining power is still weak in these five countries compared to that in other emerging markets.
+
+The variance share of the world factors supports our observation from \Autoref{fig:Wfactors}. \Autoref{tab:vd2} gives the share of variations in the exchange rates explained by the world factor within different sample periods. The first column is the continent where the country belongs to. The second column is  the country name. The third column is the variance share of the world factor in the full sample results from 1996M1 to 2016M3 as calculated based on Equation (\ref{eq:VD_WF}). The fourth and last column shows the results calculated from Equation (\ref{eq:VD_negro}) using sub-samples from 1996 to 2008 and 2009 to 2016, respectively. Indeed, 20\% of the fluctuations of all the 20 countries during 1996 and 2016 can be explained by the world factor. Before the Great Recession, this number was only 19\%, and since the Great Recession, this number has increased to 36\%. A comparison between the last two columns shows that in recent years, the common factor accounts for more variation in the exchange rate fluctuations in the emerging economies. So generally speaking, according to the variance decomposition, the world factor became more important for exchange rate fluctuations in the emerging markets after 2008. This characteristic is retained for all the countries we studied. Besides magnified effect due to time collapse, there also exist cross-continental differences concerning the magnificence of the world factor. The average variance share of the world factor in Europe reaches 32\%, whereas that ratio for Asia is only 7\%. Therefore, the exchange rates of Asian countries are more affected by local factors, including regional factor or country-specific factor. \Autoref{tab:r2} reports the $R^2$ of the regression of exchange rates on the world factor. There are also many cross-country differences.
+
+\subsection{U.S. and Chinese Economies and the emerging market exchange rates}
+
+
+\Autoref{fig:IRF_WF_before1} indicates the impulse responses of the world factor to positive shocks in the VAR system, based on data from 1996M1 to 2008M11. The blue solid lines indicate the estimated median of the impulse responses, and the red dashed lines represent the 68\% confidence intervals. Shocks to U.S. variables do not have any significant impact on the world factor. Chinese CPI shocks do have a negative impact on the world factor.
+
+\Autoref{tab:vd_before} is the forecast error variance decomposition of the world factor in different horizons based on data from 1996M1 to 2008M11. \Autoref{tab:vd_before_3} reports the result of grouping the shocks into the U.S. shocks, Chinese shocks, and emerging market shocks. During this time period, the U.S. monetary policy shock and CPI shock had almost no impact on the world factor. Using 48-month horizon, the U.S. industrial production shock accounts for 2\% of the total fluctuations in the world factor, and all three U.S. shocks account for only 10\% of the total fluctuations. Meanwhile, Chinese shocks also account for only 7\% of the total fluctuations in 48-month horizon. However, different from the composition of the contribution of the U.S. shocks, Chinese monetary policy shocks contributed more than the Chinese industrial production shocks.
+
+\Autoref{fig:HD_WF_before1} indicates the historical decomposition of the world factor from 1996M1 to 2008M11. The black solid line is the world factor, the blue line with circles is the impact of the U.S. monetary policy shock on the world factor, and the red dashed line is the impact of Chinese economy shock on the world factor. Comparing the solid line and line with circles, we find that the U.S. monetary policy shock did not show much impact. The impact of Chinese economy shock on the world factor is larger than that of U.S. monetary policy shock.
+%the U.S. industrial production shocks, represented by yellow bars, also played relatively important role in affecting the world factor, especially in 2001. The Chinese industrial production shocks, represented by the purple bars, decreased the world factor significantly. The U.S. monetary policy shocks, represented by orange bars, did not show much impact during the particular sample period.
+
+\Autoref{fig:IRF_WF_after1} shows the impulse responses of the world factor to positive shocks in the VAR system, based on data from 2009M1 to 2016M3. The impulse responses during the ``zero-lower-bound'' period are clearly very different from those for the previous period. U.S. industrial production shocks had a significant impact of the world factor in the very short run (1-2 months), and the U.S. monetary policy shocks had a significantly negative effect on the world factor from the second to the seventh month after a shock. Both the Chinese industrial production shock and the CPI shock affected the world factor positively and in the opposite direction than in the previous period. The results mean that first, U.S. monetary policy becomes more important for the emerging markets' exchange rate fluctuations; second, the Chinese economy now matters for the emerging markets. And the reason might come from the changed role in emerging markets: it becomes from their competitors to a very important importer of the emerging markets.
+
+\Autoref{tab:vd_after} is the forecast error variance decomposition of the world factor for different horizons based on data from 2009M1 to 2016M3. \Autoref{tab:vd_after_3} reports the result of grouping the shocks into U.S. shocks, Chinese shocks, and emerging market shocks. Both the U.S. and China become more important in terms of affecting the world factor, namely, 18\% and 12\% medium-run variations can be explained by the U.S. shocks and Chinese shocks, respectively. %, and the numbers reach 8\% and 12\% during the 48-month horizon. China plays an even more important role than the U.S. in affecting the world factor.
+Within the impact of the U.S. shocks, U.S. monetary policy shocks exceed the industrial production shocks, thus becoming the most important U.S. shocks. %Within the impact of the Chinese shocks, money supply shocks are less important than before while the industrial production shocks become dominant and explain as much as 10\% of the world factor fluctuations.
+
+\Autoref{fig:HD_WF_after1} is the historical decomposition of the world factor from 2009M1 to 2016M3. Compared to \Autoref{fig:HD_WF_before1}, the impacts of the U.S. monetary policy shocks and the Chinese economy shocks, represented by the blue lines with circles and red dashed lines, respectively, are larger on the world factor. U.S. monetary policy plays a much more important role during this period compared to the pre-ZLB period. After 2014, the Chinese economy shocks mainly have negative impacts on the world factor. The average historical contribution of U.S. monetary policy shocks and Chinese economy shocks during 2009 and 2016 are 18.8\% and 23\%, respectively.
+
+These results imply that in recent years, the U.S. monetary policy has had a much larger influence on the changes of exchange rates in the emerging market countries, and the slowdown in Chinese economy does have a significant spillover effect on other emerging market countries.
+
+We also considered using the Chinese import growth to replace Chinese industrial production growth since international trade is the main channel through which the Chinese economy affects other emerging markets. Our main results remain unchanged. The impulse responses in \Autoref{fig:IRF_WF_IMP_before1} and \Autoref{fig:IRF_WF_IMP_after1} display similar patterns to those in \Autoref{fig:IRF_WF_before1} and \Autoref{fig:IRF_WF_after1}, respectively.
+
+
+
+\section{Conclusion}
+ The dynamic hierarchical factor model help disentangle the relative importance of the common component of the exchange rate change in the emerging markets and implied that historically the fluctuation in their exchange rates has mostly been driven by local factors. The common factor has become more important in recent years. The analysis of a VAR built to investigate how the U.S. monetary policy and a Chinese slowdown in economy affect the common component shows that U.S. monetary policy shocks and Chinese shocks did exert more impact on co-movements of the emerging markets exchange rate fluctuations since 2009.
+
+
+\newpage
+\singlespacing
+\bibliographystyle{cje}
+\bibliography{Benref}
+
+\newpage
+\appendix
+\section{Tables and Figures}
+
+% Table generated by Excel2LaTeX from sheet 'Sheet7'
+
+\begin{table}[htbp]
+  \centering
+
+\caption{\textbf{Summary Statistics: the nominal exchange rates in emerging market countries}}
+  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ll|ccl}
+    \hline\hline
+Region	&	Country	&	Mean (\%)	&	Standard Deviation	& Exchange rate arrangement\\	\hline
+\multirow{5}{*}{America}	&	Brazil	&	0.64 	&	0.04 & Independently floating	\\	
+	&	Chile	&	0.24 	&	0.03& Independently floating 	\\	
+	&	Colombia	&	0.52 	&	0.03 & Independently floating	\\	
+	&	Mexico	&	0.37 	&	0.02 & Independently floating	\\	
+	&	Peru	&	0.16 	&	0.01 & Managed floating	\\	\hline
+\multirow{7}{*}{Asia}	&	India	&	0.28 	&	0.02 & Managed floating	\\	
+	&	Isreal	&	0.11 	&	0.02 & Independently floating	\\	
+	&	Pakistan	&	0.47 	&	0.01 & Managed floating	\\	
+	&	Philippines	&	0.26 	&	0.02 & Independently floating	\\	
+	&	Korea	&	0.25 	&	0.04 & Independently floating	\\	
+	&	Thailand	&	0.18 	&	0.03 & Managed floating	\\	
+	&	Indonesia	&	1.00 	&	0.08 & Managed floating	\\	\hline
+\multirow{8}{*}{ \begin{tabular}{@{}c@{}}Europe \\ and \\ Africa \end{tabular}}	&	Czech	&	0.01 	&	0.03 & Managed floating	\\	
+	&	Hungary	&	0.34 	&	0.03 & Pegged with $\pm 15\%$ bands	\\	
+	&	Poland	&	0.23 	&	0.03 & Independently floating	\\	
+	&	Romania	&	1.22 	&	0.04 & Crawling bands	\\	
+	&	Turkey	&	1.72 	&	0.04 & Independently floating	\\	
+	&	South Africa	&	0.67 	&	0.04 & Independently floating	\\	
+	&	Bulgaria	&	2.04 	&	0.17 & Currency board	\\	
+	&	Russia	&	1.35 	&	0.08 & Managed floating	\\	
+  \hline\hline
+    \end{tabularx}%
+
+ \begin{minipage}{\textwidth}
+{			
+    \begin{itemize}
+\item[1]  Data: nominal exchange rates of emerging markets against U.S. dollar from 1995M1 to 2016M3. The original data is transferred to the growth rate of exchange rates (log-difference).
+\item[2]  Countries are grouped according to continent. Each block contains countries in one continent. The first column is the abbreviation of continents: America, Asia, Europe, and Africa.
+\end{itemize}
+}
+\end{minipage}
+  \label{tab:sum_stat}%
+
+\end{table}%
+
+\clearpage
+
+
+% Table generated by Excel2LaTeX from sheet 'Sheet7'
+
+\begin{table}[htbp]
+  \centering
+  \caption{\textbf{Variance share of world factor}}
+    \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ll|ccc}
+    \hline\hline
+Region	&	Country	&	1996M1-2016M3	&	1996M1-2008M11	&	2008M12-2016M3	\\	\hline
+\multirow{5}{*}{America}	&	Brazil	&	0.16 	&	0.10 	&	0.29 	\\	
+	&	Chile	&	0.21 	&	0.13 	&	0.20 	\\	
+	&	Colombia	&	0.20 	&	0.13 	&	0.20 	\\	
+	&	Mexico	&	0.22 	&	0.13 	&	0.19 	\\	
+	&	Peru	&	0.17 	&	0.11 	&	0.21 	\\	
+	&	Average	&	0.19 	&	0.12 	&	0.22 	\\	\hline
+\multirow{7}{*}{Asia}	&	India	&	0.03 	&	0.02 	&	0.03 	\\	
+	&	Isreal	&	0.01 	&	0.01 	&	0.05 	\\	
+	&	Pakistan	&	0.00 	&	0.01 	&	0.07 	\\	
+	&	Philippines	&	0.13 	&	0.02 	&	0.15 	\\	
+	&	Korea	&	0.08 	&	0.02 	&	0.11 	\\	
+	&	Thailand	&	0.14 	&	0.02 	&	0.26 	\\	
+	&	Indonesia	&	0.09 	&	0.02 	&	0.31 	\\	
+	&	Average	&	0.07 	&	0.02 	&	0.14 	\\	\hline
+\multirow{8}{*}{Europe and Africa}	&	Czech	&	0.60 	&	0.55 	&	0.77 	\\	
+	&	Hungary	&	0.70 	&	0.72 	&	0.80 	\\	
+	&	Poland	&	0.67 	&	0.64 	&	0.83 	\\	
+	&	Romania	&	0.21 	&	0.26 	&	0.71 	\\	
+	&	Turkey	&	0.11 	&	0.23 	&	0.54 	\\	
+	&	South Africa	&	0.18 	&	0.27 	&	0.50 	\\	
+	&	Bulgaria	&	0.04 	&	0.18 	&	0.48 	\\	
+	&	Russia	&	0.03 	&	0.17 	&	0.49 	\\	
+	&	Average	&	0.32 	&	0.38 	&	0.64 	\\	\hline
+\multicolumn{2}{c|}{All average}			&	0.20 	&	0.19 	&	0.36 	\\	
+   \hline\hline
+    \end{tabularx}%
+
+\begin{minipage}{\textwidth}
+{			
+    \begin{itemize}
+\item[1] The full sample variance share of nominal exchange rates fluctuations explained by the world factor is calculated according to Equation (\ref{eq:VD_WF}).
+\item[2] The average share of nominal exchange rate fluctuations explained by world factor, regional factor and country-specific factors in subsample period $[t_0,t_1]$ using the following Equations (\ref{eq:VD_negro}).
+\item[3]  Continent average statistics are reported at the end of each block, and average statistics of all the emerging markets are reported in the last row.
+
+\end{itemize}
+}
+\end{minipage}
+  \label{tab:vd2}%
+
+\end{table}%
+
+
+\clearpage
+
+
+% Table generated by Excel2LaTeX from sheet 'Sheet7'
+\begin{table}[htbp]
+  \centering
+
+  \caption{\textbf{Explaining power of the world factor}}
+    \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}ll|c}
+    \hline\hline
+Region	&	Country	&	$R^2$	\\	\hline
+\multirow{5}{*}{America}	&	Brazil	&	0.21 	\\	
+	&	Chile	&	0.27 	\\	
+	&	Colombia	&	0.24 	\\	
+	&	Mexico	&	0.23 	\\	
+	&	Peru	&	0.23 	\\	\hline
+\multirow{7}{*}{Asia}	&	India	&	0.21 	\\	
+	&	Isreal	&	0.18 	\\	
+	&	Pakistan	&	0.03 	\\	
+	&	Philippines	&	0.12 	\\	
+	&	Korea	&	0.17 	\\	
+	&	Thailand	&	0.12 	\\	
+	&	Indonesia	&	0.06 	\\	\hline
+\multirow{8}{*}{Europe and Africa}	&	Czech	&	0.59 	\\	
+	&	Hungary	&	0.68 	\\	
+	&	Poland	&	0.70 	\\	
+	&	Romania	&	0.28 	\\	
+	&	Turkey	&	0.20 	\\	
+	&	South Africa	&	0.23 	\\	
+	&	Bulgaria	&	0.04 	\\	
+	&	Russia	&	0.05 	\\	
+    \hline\hline
+    \end{tabularx}%
+  \label{tab:r2}%
+
+\begin{minipage}{\textwidth}
+{			
+    \begin{itemize}
+\item[1]  The $R^2$ is obtained by regressing each country's exchange rate change on the world factor extracted from the dynamic hierarchical factor model.
+ \end{itemize}
+}
+\end{minipage}
+\end{table}%
+
+\begin{table}[htbp]
+  \centering
+\caption{\textbf{Forecast error variance decomposition of the world factor: 1996M1 - 2008M11}}
+   \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}cccccccccc}
+    \hline\hline
+\multirow{1}{0.9cm}{Horizon}	&	\multirow{1}{0.9cm}{$IND_{US}$}	&	\multirow{1}{0.9cm}{$CPI_{US}$}	&	\multirow{1}{0.9cm}{$SR_{US}$}	&	\multirow{1}{0.9cm}{$IND_{CN}$}	&	\multirow{1}{0.9cm}{$CPI_{CN}$}	&	\multirow{1}{0.9cm}{$M2_{CN}$}	&	\multirow{1}{0.9cm}{$IND_{EM}$}	&	\multirow{1}{0.9cm}{$CPI_{EM}$}	&	\multirow{1}{0.9cm}{WF}	\\\hline
+%Horizon	&	$IND_{US}$	&	$CPI_{US}$	&	$SR_{US}$	&	$IND_{CN}$	&	$CPI_{CN}$	&	$M2_{CN}$	&	$IND_{EM}$	&	$CPI_{EM}$	&	WF	\\	\hline
+1M	&	0.01 	&	0.01 	&	0.00 	&	0.00 	&	0.00 	&	0.01 	&	0.00 	&	0.01 	&	0.91 	\\
+6M	&	0.02 	&	0.05 	&	0.02 	&	0.02 	&	0.01 	&	0.01 	&	0.01 	&	0.01 	&	0.80 	\\
+12M	&	0.02 	&	0.05 	&	0.02 	&	0.02 	&	0.01 	&	0.02 	&	0.01 	&	0.01 	&	0.77 	\\
+18M	&	0.02 	&	0.05 	&	0.03 	&	0.02 	&	0.02 	&	0.03 	&	0.01 	&	0.01 	&	0.76 	\\
+24M	&	0.02 	&	0.05 	&	0.03 	&	0.02 	&	0.02 	&	0.03 	&	0.01 	&	0.01 	&	0.75 	\\
+30M	&	0.02 	&	0.05 	&	0.03 	&	0.02 	&	0.02 	&	0.03 	&	0.01 	&	0.01 	&	0.75 	\\
+36M	&	0.02 	&	0.05 	&	0.03 	&	0.02 	&	0.02 	&	0.03 	&	0.01 	&	0.01 	&	0.75 	\\
+42M	&	0.02 	&	0.05 	&	0.03 	&	0.02 	&	0.02 	&	0.03 	&	0.01 	&	0.01 	&	0.75 	\\
+48M	&	0.02 	&	0.05 	&	0.03 	&	0.02 	&	0.02 	&	0.03 	&	0.01 	&	0.02 	&	0.75 	\\
+\hline\hline
+    \end{tabularx}%
+  \label{tab:vd_before}%
+
+  \begin{minipage}{\textwidth}
+{			
+    \begin{itemize}
+\item[1] This table presents the result of decomposing the forecast error variance of the world factor into nine shocks at the selected horizons based on data from 1995M11 to 2008M11. All the statistics is measured in percentage point.
+\item[2] The nine shocks are U.S. industrial production shock ($IND_{US}$), U.S. price shock ($CPI_{US}$), U.S. monetary policy shock ($FFR_{US}$), Chinese industrial production shock ($IND_{CN}$), Chinese price shock ($CPI_{CN}$), Chinese monetary policy shock ($M2_{CN}$), emerging markets industrial production shock ($IND_{EM}$), emerging markets price shock ($CPI_{EM}$), and world factor shock (WF).
+\end{itemize}
+}
+\end{minipage}
+
+\end{table}%
+
+\begin{table}[htbp]
+    \centering
+\caption{\textbf{Forecast error variance decomposition of the world factor into three groups: 1996M1 - 2008M11}}
+
+     \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}cccc}
+    \hline\hline
+Horizon	&	$US_{all}$	&					$CN_{all}$	&					$EM_{all}$	\\	\hline
+1M	&	0.03 	&					0.01 	&					0.92 					\\
+6M	&	0.09 	&					0.04 	&					0.82 					\\
+12M	&	0.09 	&					0.05 	&					0.79 					\\
+18M	&	0.10 	&					0.06 	&					0.78 					\\
+24M	&	0.10 	&					0.06 	&					0.77 					\\
+30M	&	0.10 	&					0.06 	&					0.77 					\\
+36M	&	0.10 	&					0.07 	&					0.77 					\\
+42M	&	0.10 	&					0.07 	&					0.77 					\\
+48M	&	0.10 	&					0.07 	&					0.77 					\\
+\hline\hline
+    \end{tabularx}%
+  \label{tab:vd_before_3}%
+
+\begin{minipage}{\textwidth}
+{	\begin{itemize}
+
+\item[1] This table presents the result of decomposing the forecast error variance of the world factor into three groups shocks at the selected horizons based on data from 1995M11 to 2008M11. All the statistics is measured in percentage point.
+\item[2] The three groups of shocks are  the U.S. shocks ($US_{All}$), including U.S. industrial production shock ($IND_{US}$), U.S. price shock ($CPI_{US}$), and U.S. monetary policy shock ($FFR_{US}$), Chinese shocks ($CN_{All}$), including Chinese industrial production shock ($IND_{CN}$), Chinese price shock ($CPI_{CN}$), and Chinese monetary policy shock ($M2_{CN}$), and emerging markets shocks ($EM_{All}$), including emerging markets industrial production shock ($IND_{EM}$), emerging markets price shock ($CPI_{EM}$), and world factor shock (WF).
+\end{itemize}
+
+}
+\end{minipage}
+
+\end{table}%
+
+
+\begin{table}[htbp]
+  \centering
+
+\caption{\textbf{Forecast error variance decomposition of the world factor: 2008M12 - 2016M3}}
+  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}cccccccccc}
+    \hline\hline
+\multirow{1}{0.9cm}{Horizon}	&	\multirow{1}{0.9cm}{$IND_{US}$}	&	\multirow{1}{0.9cm}{$CPI_{US}$}	&	\multirow{1}{0.9cm}{$SR_{US}$}	&	\multirow{1}{0.9cm}{$IND_{CN}$}	&	\multirow{1}{0.9cm}{$CPI_{CN}$}	&	\multirow{1}{0.9cm}{$M2_{CN}$}	&	\multirow{1}{0.9cm}{$IND_{EM}$}	&	\multirow{1}{0.9cm}{$CPI_{EM}$}	&	\multirow{1}{0.9cm}{WF}	\\\hline
+%Horizon	&	$IND_{US}$	&	$CPI_{US}$	&	$SR_{US}$	&	$IND_{CN}$	&	$CPI_{CN}$	&	$M2_{CN}$	&	$IND_{EM}$	&	$CPI_{EM}$	&	WF	\\	\hline
+1M	&	0.01 	&	0.01 	&	0.06 	&	0.01 	&	0.00 	&	0.01 	&	0.02 	&	0.01 	&	0.80 	\\
+6M	&	0.03 	&	0.05 	&	0.06 	&	0.03 	&	0.02 	&	0.03 	&	0.08 	&	0.02 	&	0.61 	\\
+12M	&	0.04 	&	0.05 	&	0.08 	&	0.03 	&	0.03 	&	0.03 	&	0.09 	&	0.03 	&	0.57 	\\
+18M	&	0.03 	&	0.05 	&	0.08 	&	0.03 	&	0.04 	&	0.03 	&	0.09 	&	0.03 	&	0.54 	\\
+24M	&	0.03 	&	0.05 	&	0.09 	&	0.03 	&	0.04 	&	0.04 	&	0.08 	&	0.03 	&	0.52 	\\
+30M	&	0.03 	&	0.05 	&	0.09 	&	0.04 	&	0.04 	&	0.04 	&	0.08 	&	0.03 	&	0.52 	\\
+36M	&	0.03 	&	0.05 	&	0.09 	&	0.04 	&	0.04 	&	0.04 	&	0.08 	&	0.03 	&	0.51 	\\
+42M	&	0.03 	&	0.05 	&	0.09 	&	0.04 	&	0.04 	&	0.04 	&	0.08 	&	0.03 	&	0.51 	\\
+48M	&	0.03 	&	0.06 	&	0.09 	&	0.04 	&	0.04 	&	0.04 	&	0.08 	&	0.03 	&	0.51 	\\
+\hline\hline
+    \end{tabularx}%
+  \label{tab:vd_after}%
+
+   \begin{minipage}{\textwidth}
+{			
+    \begin{itemize}
+\item[1] This table presents the result of decomposing the forecast error variance of the world factor into nine shocks at the selected horizons based on data from 2009M1 to 2016M3. All the statistics is measured in percentage point.
+\item[2] The nine shocks are U.S. industrial production shock ($IND_{US}$), U.S. price shock ($CPI_{US}$), U.S. monetary policy shock ($FFR_{US}$), Chinese industrial production shock ($IND_{CN}$), Chinese price shock ($CPI_{CN}$), Chinese monetary policy shock ($M2_{CN}$), emerging markets industrial production shock ($IND_{EM}$), emerging markets price shock ($CPI_{EM}$), and world factor shock (WF).
+\end{itemize}
+}
+\end{minipage}
+
+\end{table}%
+
+\begin{table}[htbp]
+    \centering
+\caption{\textbf{Forecast error variance decomposition of the world factor into three groups: 2008M12 - 2016M3}}
+  \begin{tabularx}{\textwidth}{@{\extracolsep{\fill}}cccc}
+    \hline\hline
+%Horizon	&	$US_{All}$	&	$CN_{All}$	&	$EM_{All}$	\\\hline
+Horizon	&	$US_{all}$	&					$CN_{all}$	&					$EM_{all}$					\\	\hline
+1M	&	0.08 	&					0.02 	&					0.83 					\\	
+6M	&	0.14 	&					0.07 	&					0.72 					\\	
+12M	&	0.16 	&					0.09 	&					0.68 					\\	
+18M	&	0.17 	&					0.10 	&					0.66 					\\	
+24M	&	0.17 	&					0.11 	&					0.64 					\\	
+30M	&	0.17 	&					0.12 	&					0.63 					\\	
+36M	&	0.18 	&					0.12 	&					0.63 					\\	
+42M	&	0.18 	&					0.12 	&					0.63 					\\	
+48M	&	0.18 	&					0.12 	&					0.63 					\\	
+\hline\hline
+    \end{tabularx}%
+  \label{tab:vd_after_3}%
+
+  \begin{minipage}{\textwidth}
+{			
+    \begin{itemize}
+\item[1] This table presents the result of decomposing the forecast error variance of the world factor into three groups shocks at the selected horizons based on data from 2009M1 to 2016M3. All the statistics is measured in percentage point.
+\item[2] The three groups of shocks are  the U.S. shocks ($US_{All}$), including U.S. industrial production shock ($IND_{US}$), U.S. price shock ($CPI_{US}$), and U.S. monetary policy shock ($FFR_{US}$), Chinese shocks ($CN_{All}$), including Chinese industrial production shock ($IND_{CN}$), Chinese price shock ($CPI_{CN}$), and Chinese monetary policy shock ($M2_{CN}$), and emerging markets shocks ($EM_{All}$), including emerging markets industrial production shock ($IND_{EM}$), emerging markets price shock ($CPI_{EM}$), and world factor shock (WF).
+
+\end{itemize}
+}
+\end{minipage}
+
+\end{table}%
+
+\clearpage
+
+
+\begin{figure}[h!]
+\centering
+\caption{\textbf{Fluctuations in nominal exchange rates of emerging market countries: 1996 - 2016} }
+\includegraphics[width=1.0\textwidth]{figures/exchange_rate.eps}
+ %\begin{minipage}{1\linewidth}
+%		\footnotesize
+%		\emph{Notes:} The top chart shows the growth rates of exchange rates for the 20 countries from 1996 to 2016.
+\label{fig:ex}
+%\end{minipage}
+\end{figure}
+\newpage
+\begin{figure}[h!]
+\centering
+\caption{\textbf{Impacts of the world factor on nominal exchange rates of emerging market countries: 1996 - 2016} }
+\includegraphics[width=1.0\textwidth]{figures/WorldFactor.eps}
+% \begin{minipage}{1\linewidth}
+%		\footnotesize
+%		\emph{Notes:} The top chart shows the growth rates of exchange rates for the 20 countries from 1993 to 2014. The second chart shows the impact of the world shocks on each country, $\lambda^j_{Fr}\lambda^n_{Gr}F_t$. The third chard shows the impact of the regional shocks on the country in the continent, $e_{Grnt}$. The bottom chart shows the impact of the country-specific shocks, $e_{yrnt}$.
+\label{fig:Wfactors}
+%\end{minipage}
+\end{figure}
+\newpage
+
+\begin{figure}[h!]
+\centering
+\caption{\textbf{Impacts of regional  factors on nominal exchange rates of emerging market countries: 1996 - 2016} }
+\includegraphics[width=1.0\textwidth]{figures/RegionalFactor.eps}
+% \begin{minipage}{1\linewidth}
+%		\footnotesize
+%		\emph{Notes:} The top chart shows the growth rates of exchange rates for the 20 countries from 1993 to 2014. The second chart shows the impact of the world shocks on each country, $\lambda^j_{Fr}\lambda^n_{Gr}F_t$. The third chard shows the impact of the regional shocks on the country in the continent, $e_{Grnt}$. The bottom chart shows the impact of the country-specific shocks, $e_{yrnt}$.
+\label{fig:Rfactors}
+%\end{minipage}
+\end{figure}
+\newpage
+
+\begin{figure}[h!]
+\centering
+\caption{\textbf{Impacts of country-specific factors on nominal exchange rates of emerging market countries: 1996 - 2016 }}
+\includegraphics[width=1.0\textwidth]{figures/CountryFactor.eps}
+%
+%\begin{minipage}{1\linewidth}
+%		\footnotesize
+%		\emph{Notes:} The top chart shows the growth rates of exchange rates for Brazil, India, Indonesia, Turkey and South Africa from 1993 to 2014. The second chart shows the impact of the world shocks on each country, $\lambda^j_{Fr}\lambda^n_{Gr}F_t$. The third chard shows the impact of the regional shocks on the country in the continent, $e_{Grnt}$. The bottom chart shows the impact of the country-specific shocks, $e_{yrnt}$.
+%\end{minipage}
+\label{fig:Cfactors}
+\end{figure}
+\newpage
+
+\begin{figure}
+\centering
+\caption{\textbf{Impulse responses of the world factor: 1996M1 -- 2008M11. }}
+\includegraphics[width=1.0\textwidth]{figures/irf_WF_floatpre08.eps}\label{fig:IRF_WF_before1}
+
+\begin{minipage}{1\linewidth}
+		\footnotesize
+	\emph{Notes:} Impulse responses of the world factor to an  1\%  shock to U.S. industrial production, U.S. inflation, U.S. federal funds rate, Chinese industrial production, Chinese inflation, Chinese monetary supply, emerging market production, emerging market inflation, and the world factor of the emerging market exchange rates, respectively. The blue solid lines represent median responses, and the red dashed lines represent the 68\% confidence intervals for the estimated median responses. X-axis:  time in quarters; Y-axis:  percentage changes.
+\end{minipage}
+\end{figure}
+\newpage
+
+\begin{figure}
+\centering
+\caption{\textbf{Historical decomposition of the world factor: nominal exchange rate, 1996M1 -- 2008M11.}}
+\includegraphics[width=1.0\textwidth]{figures/HD_pre08.eps}
+
+\label{fig:HD_WF_before1}
+\end{figure}
+
+%\begin{figure}
+%\centering
+%\includegraphics[trim = 30mm 0mm 0mm 0mm, clip,width=18cm,height=12cm]{HD_MP.pdf}
+% \captionsetup{justification=raggedright,singlelinecheck=off}
+%\caption{Historical Decomposition of the World Factor -- U.S. Monetary Policy Shocks Vs. Other Shocks.}
+%
+%\label{fig:HD_MP}
+%\end{figure}
+
+
+%\begin{figure}
+%\centering
+%\includegraphics[trim = 30mm 0mm 0mm 0mm, clip,width=18cm,height=12cm]{HD_2parts.pdf}
+% \captionsetup{justification=raggedright,singlelinecheck=off}
+%\caption{Historical Decomposition of the World Factor -- U.S. Shocks Vs. Emerging Markets' Shocks.}
+%
+%\label{fig:HD_2parts}
+%\end{figure}
+
+
+\newpage
+
+\begin{figure}
+\centering
+\caption{\textbf{Impulse responses of the world factor: 2008M12 -- 2016M3.}}
+\includegraphics[width=1.0\textwidth]{figures/irf_WF_floatpost08.eps}
+
+\label{fig:IRF_WF_after1}
+\begin{minipage}{1\linewidth}
+		\footnotesize
+	\emph{Notes:} Impulse responses of the world factor to an  1\%  shock to U.S. industrial production, U.S. inflation, U.S. federal funds rate, Chinese industrial production, Chinese inflation, Chinese monetary supply, emerging market production, emerging market inflation, and the world factor of the emerging market exchange rates, respectively. The blue solid lines represent median responses, and the red dashed lines represent the 68\% confidence intervals for the estimated median responses. X-axis:  time in quarters; Y-axis:  percentage changes.
+\end{minipage}
+\end{figure}
+\clearpage
+\newpage
+
+\begin{figure}
+\centering
+\caption{\textbf{Historical decomposition of the world factor: 2008M12 -- 2016M3.}}
+\includegraphics[width=1.0\textwidth]{figures/HD_post08.eps}
+
+\label{fig:HD_WF_after1}
+\end{figure}
+\clearpage
+%\begin{figure}
+%\centering
+%\includegraphics[trim = 30mm 0mm 0mm 0mm, clip,width=18cm,height=12cm]{HD_china_2parts.pdf}
+% \captionsetup{justification=raggedright,singlelinecheck=off}
+%\caption{Historical Decomposition of the World Factor -- Chinese Shocks Vs. Other Shocks.}
+%\label{fig:HD_china_2parts}
+%\end{figure}
+%
+%
+%\begin{figure}
+%\centering
+%\includegraphics[trim = 30mm 0mm 0mm 0mm, clip,width=18cm,height=12cm]{HD_china_3parts.pdf}
+% \captionsetup{justification=raggedright,singlelinecheck=off}
+%\caption{Historical Decomposition of the World Factor -- Chinese Shocks, U.S. Shocks Vs. Emerging Markets' Shocks.}
+%
+%\label{fig:HD_china_3parts}
+%\end{figure}
+\newpage
+\begin{figure}
+\centering
+\caption{\textbf{Impulse responses of the world factor: 1996M1 -- 2008M11. }}
+\includegraphics[width=1.0\textwidth]{figures/irf_WF_IMP_floatpre08.eps}\label{fig:IRF_WF_IMP_before1}
+
+\begin{minipage}{1\linewidth}
+		\footnotesize
+	\emph{Notes:} Impulse responses of the world factor to an  1\%  shock to U.S. industrial production, U.S. inflation, U.S. federal funds rate, Chinese import, Chinese inflation, Chinese monetary supply, emerging market production, emerging market inflation, and the world factor of the emerging market exchange rates, respectively. The blue solid lines represent median responses, and the red dashed lines represent the 68\% confidence intervals for the estimated median responses. X-axis:  time in quarters; Y-axis:  percentage changes.
+\end{minipage}
+\end{figure}
+\newpage
+
+\begin{figure}
+\centering
+\caption{\textbf{Impulse responses of the world factor: 2008M12 -- 2016M3.}}
+\includegraphics[width=1.0\textwidth]{figures/irf_WF_IMP_floatpost08.eps}
+
+\label{fig:IRF_WF_IMP_after1}
+\begin{minipage}{1\linewidth}
+		\footnotesize
+	\emph{Notes:} Impulse responses of the world factor to an  1\%  shock to U.S. industrial production, U.S. inflation, U.S. federal funds rate, Chinese import, Chinese inflation, Chinese monetary supply, emerging market production, emerging market inflation, and the world factor of the emerging market exchange rates, respectively. The blue solid lines represent median responses, and the red dashed lines represent the 68\% confidence intervals for the estimated median responses. X-axis:  time in quarters; Y-axis:  percentage changes.
+\end{minipage}
+\end{figure}
+
+
+\end{document}
