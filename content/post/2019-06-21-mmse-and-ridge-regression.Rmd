@@ -1,0 +1,35 @@
+---
+title: MMSE and ridge regression
+author: Glidis
+date: '2019-06-21'
+slug: mmse-and-ridge-regression
+categories:
+  - Regression
+tags:
+  - Econometrics?
+---
+近来抽空又读了一下*`Mostly Harmless Econometrics`*，虽然从来就没有完整看完过。
+
+书中**Theorem 3.1.5**说了一件事情：
+对于$\beta = \arg \min E[(Y_i - X_i^\prime b)^2]$，在MMSE意义下，$X_i^\prime \beta$是$Y_i$的最佳线性预测值。
+
+MMSE就是指均方误差最小了(Minimum Mean Squared Error)。
+
+当时就那么忽然产生了疑惑：ridge regression 的估计值$\beta(\lambda)$对于$Y_i$也是线性的，
+对应的预测值也同样是线性的。
+
+但依稀记得ridge有个性质是，可能存在$\lambda$使得均方误差比OLS下的均方误差还小，即牺牲了一点点bias，却使得variance更小，最终减小了MSE。
+
+那那为什么还要说$X_i^\prime \beta$能是MMSE呢？
+
+仔细回顾思索了一番，两个说法都没有错，
+问题在于自己混同了两边的MSE：  
+
+ -  **Th. 3.1.5**说的是$Y_i$与其预测值之间的MSE
+ -  ridge 说的是真实$\beta$与$\beta(\lambda)$之间的MSE
+
+$\beta = \arg \min E[(Y_i - X_i^\prime b)^2]$是无约束的优化问题，
+而ridge则相当于在无约束问题上加了一个$\beta$的2范数约束，这样来看，
+必然有$E[(Y_i - X_i^\prime \beta(\lambda))^2] \ge E[(Y_i - X_i^\prime \beta)^2]$。
+
+说到底，最大的问题还是在于学艺不精，Sigh。
