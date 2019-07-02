@@ -107,31 +107,31 @@ while (i &lt;= 1000 &amp;&amp; gap &gt; tol) {
     print(data.frame(theta=theta$tht, mu = new_musig$mu, sig = new_musig$sig))
   }
 }</code></pre>
-<pre><code>##       theta         mu       sig
-## 1 0.3338220 -0.1421929 0.9585378
-## 2 0.2671482  2.8412077 1.0500719
-## 3 0.3990298 -3.0054214 0.8931510</code></pre>
+<pre><code>##       theta          mu       sig
+## 1 0.4331997 -2.94079288 0.9691276
+## 2 0.2877553  0.01692771 0.8282269
+## 3 0.2790450  2.81568012 1.1450735</code></pre>
 <p>也可以使用开源的R包来实现</p>
 <pre class="r"><code>library(mixtools)</code></pre>
 <pre><code>## mixtools package, version 1.1.0, Released 2017-03-10
 ## This package is based upon work supported by the National Science Foundation under Grant No. SES-0518772.</code></pre>
 <pre class="r"><code>res &lt;- normalmixEM(x, c(0.2,.3, .5), runif(3, -5, 5), runif(3, 1, 10))</code></pre>
-<pre><code>## number of iterations= 524</code></pre>
+<pre><code>## number of iterations= 432</code></pre>
 <pre class="r"><code>print(data.frame(theta = res$lambda, mu = res$mu, sig = res$sigma))</code></pre>
 <pre><code>##       theta         mu       sig
-## 1 0.4001695 -3.0018420 0.8950444
-## 2 0.2686266  2.8330038 1.0542133
-## 3 0.3312039 -0.1434155 0.9497034</code></pre>
+## 1 0.4338174 -2.9385874 0.9704185
+## 2 0.2804826  2.8068708 1.1497172
+## 3 0.2856999  0.0143126 0.8221544</code></pre>
 <p><strong>注意2：</strong> 在实际问题中，EM算法并不总是收敛的，有可能落进局部解。例如，以上例子中，我们将方差变大，结果将不在收敛。</p>
 <pre class="r"><code>res &lt;- normalmixEM(c(rnorm(300, -3, 5), rnorm(400, 0, 2), rnorm(500, 3, 4)),
                    c(0.2,.3, .5), runif(3, -5, 5), runif(3, 1, 10))</code></pre>
 <pre><code>## WARNING! NOT CONVERGENT! 
 ## number of iterations= 1000</code></pre>
 <pre class="r"><code>print(data.frame(theta = res$lambda, mu = res$mu, sig = res$sigma))</code></pre>
-<pre><code>##        theta         mu      sig
-## 1 0.13095333 -4.2941897 5.736641
-## 2 0.05284308  9.2215015 1.842043
-## 3 0.81620359  0.6525268 3.060341</code></pre>
+<pre><code>##       theta         mu      sig
+## 1 0.6104666  2.1342257 4.233808
+## 2 0.1015034 -6.8173321 3.166085
+## 3 0.2880299 -0.1653364 1.813127</code></pre>
 </div>
 <div id="em" class="section level2">
 <h2>专业的广义的EM收敛性证明</h2>
