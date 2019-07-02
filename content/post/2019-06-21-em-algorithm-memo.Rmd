@@ -168,7 +168,7 @@ $$
 按本人粗浅的理解，上式是在建立迭代关系的同时，也通过积分（求期望）消除了$\mathbf{Z}^m$。
 记上式为
 $$l(\theta^\prime;\mathbf{Z})= Q(\theta^\prime, \theta) - R(\theta^\prime, \theta) $$
-由于$\max_{\theta^\prime}l(\theta^\prime;\mathbf{Z})$难以直接求解，EM做的其实是$\max_{\theta^\prime}Q(\theta^\prime, \theta)$，之所以能收敛，还在于另外一面$\max_{\theta^\prime}R(\theta^\prime, \theta) = R(\theta^\prime, \theta)$。
+由于$\max_{\theta^\prime}l(\theta^\prime;\mathbf{Z})$难以直接求解，EM做的其实是$\max_{\theta^\prime}Q(\theta^\prime, \theta)$，之所以能收敛，还在于另外一面$\max_{\theta^\prime}R(\theta^\prime, \theta) = R(\theta, \theta)$。
 则有
 $$l(\theta^\prime;\mathbf{Z})- l(\theta;\mathbf{Z}) = [Q(\theta^\prime, \theta)-Q(\theta, \theta)] + [R(\theta, \theta)-R(\theta^\prime, \theta)] \ge  0$$
 其实求条件期望这一操作，我也没搞懂...

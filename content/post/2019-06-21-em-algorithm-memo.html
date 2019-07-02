@@ -108,30 +108,30 @@ while (i &lt;= 1000 &amp;&amp; gap &gt; tol) {
   }
 }</code></pre>
 <pre><code>##       theta          mu       sig
-## 1 0.4331997 -2.94079288 0.9691276
-## 2 0.2877553  0.01692771 0.8282269
-## 3 0.2790450  2.81568012 1.1450735</code></pre>
+## 1 0.2898806  0.01388834 0.8120795
+## 2 0.4388452 -2.93141612 1.0515319
+## 3 0.2712742  2.80456439 1.0071341</code></pre>
 <p>也可以使用开源的R包来实现</p>
 <pre class="r"><code>library(mixtools)</code></pre>
 <pre><code>## mixtools package, version 1.1.0, Released 2017-03-10
 ## This package is based upon work supported by the National Science Foundation under Grant No. SES-0518772.</code></pre>
 <pre class="r"><code>res &lt;- normalmixEM(x, c(0.2,.3, .5), runif(3, -5, 5), runif(3, 1, 10))</code></pre>
-<pre><code>## number of iterations= 432</code></pre>
+<pre><code>## number of iterations= 265</code></pre>
 <pre class="r"><code>print(data.frame(theta = res$lambda, mu = res$mu, sig = res$sigma))</code></pre>
-<pre><code>##       theta         mu       sig
-## 1 0.4338174 -2.9385874 0.9704185
-## 2 0.2804826  2.8068708 1.1497172
-## 3 0.2856999  0.0143126 0.8221544</code></pre>
+<pre><code>##       theta          mu       sig
+## 1 0.2720713  2.80004639 1.0096007
+## 2 0.4398135 -2.92764055 1.0537570
+## 3 0.2881152  0.01464776 0.8063958</code></pre>
 <p><strong>注意2：</strong> 在实际问题中，EM算法并不总是收敛的，有可能落进局部解。例如，以上例子中，我们将方差变大，结果将不在收敛。</p>
 <pre class="r"><code>res &lt;- normalmixEM(c(rnorm(300, -3, 5), rnorm(400, 0, 2), rnorm(500, 3, 4)),
                    c(0.2,.3, .5), runif(3, -5, 5), runif(3, 1, 10))</code></pre>
 <pre><code>## WARNING! NOT CONVERGENT! 
 ## number of iterations= 1000</code></pre>
 <pre class="r"><code>print(data.frame(theta = res$lambda, mu = res$mu, sig = res$sigma))</code></pre>
-<pre><code>##       theta         mu      sig
-## 1 0.6104666  2.1342257 4.233808
-## 2 0.1015034 -6.8173321 3.166085
-## 3 0.2880299 -0.1653364 1.813127</code></pre>
+<pre><code>##        theta           mu      sig
+## 1 0.09642223 -7.521037313 3.638084
+## 2 0.39018671 -0.005380248 2.253416
+## 3 0.51339106  2.227451183 4.454934</code></pre>
 </div>
 <div id="em" class="section level2">
 <h2>专业的广义的EM收敛性证明</h2>
@@ -140,5 +140,5 @@ while (i &lt;= 1000 &amp;&amp; gap &gt; tol) {
 l(\theta^\prime;\mathbf{Z})= l_0(\theta^\prime; \mathbf{T}) - l_1(\theta^\prime; \mathbf{Z}^m|\mathbf{Z})
 \]</span> 通过求条件期望（conditioning on <span class="math inline">\([\mathbf{T}|\mathbf{Z}](\theta)\)</span>）得到<span class="math inline">\(\theta^\prime\)</span>和<span class="math inline">\(\theta\)</span>之间的迭代关系， <span class="math display">\[
 l(\theta^\prime;\mathbf{Z})=\mathrm{E}[ l_0(\theta^\prime; \mathbf{T})|\mathbf{Z},\theta]- \mathrm{E}[l_1(\theta^\prime; \mathbf{Z}^m|\mathbf{Z})|\mathbf{Z},\theta]
-\]</span> 按本人粗浅的理解，上式是在建立迭代关系的同时，也通过积分（求期望）消除了<span class="math inline">\(\mathbf{Z}^m\)</span>。 记上式为 <span class="math display">\[l(\theta^\prime;\mathbf{Z})= Q(\theta^\prime, \theta) - R(\theta^\prime, \theta) \]</span> 由于<span class="math inline">\(\max_{\theta^\prime}l(\theta^\prime;\mathbf{Z})\)</span>难以直接求解，EM做的其实是<span class="math inline">\(\max_{\theta^\prime}Q(\theta^\prime, \theta)\)</span>，之所以能收敛，还在于另外一面<span class="math inline">\(\max_{\theta^\prime}R(\theta^\prime, \theta) = R(\theta^\prime, \theta)\)</span>。 则有 <span class="math display">\[l(\theta^\prime;\mathbf{Z})- l(\theta;\mathbf{Z}) = [Q(\theta^\prime, \theta)-Q(\theta, \theta)] + [R(\theta, \theta)-R(\theta^\prime, \theta)] \ge  0\]</span> 其实求条件期望这一操作，我也没搞懂…</p>
+\]</span> 按本人粗浅的理解，上式是在建立迭代关系的同时，也通过积分（求期望）消除了<span class="math inline">\(\mathbf{Z}^m\)</span>。 记上式为 <span class="math display">\[l(\theta^\prime;\mathbf{Z})= Q(\theta^\prime, \theta) - R(\theta^\prime, \theta) \]</span> 由于<span class="math inline">\(\max_{\theta^\prime}l(\theta^\prime;\mathbf{Z})\)</span>难以直接求解，EM做的其实是<span class="math inline">\(\max_{\theta^\prime}Q(\theta^\prime, \theta)\)</span>，之所以能收敛，还在于另外一面<span class="math inline">\(\max_{\theta^\prime}R(\theta^\prime, \theta) = R(\theta, \theta)\)</span>。 则有 <span class="math display">\[l(\theta^\prime;\mathbf{Z})- l(\theta;\mathbf{Z}) = [Q(\theta^\prime, \theta)-Q(\theta, \theta)] + [R(\theta, \theta)-R(\theta^\prime, \theta)] \ge  0\]</span> 其实求条件期望这一操作，我也没搞懂…</p>
 </div>
