@@ -1,0 +1,174 @@
+---
+title: EM Algorithm memo
+author: Glidis
+date: '2019-06-21'
+slug: em-algorithm-memo
+categories:
+  - Algorithm
+tags:
+  - EM
+---
+
+最早一次还有印象的接触EM算法已经是在财大旁听黄勉data mining课的时候。记得当时自己只是把EM当做了一种求极值的方法，在认真看了下讲义上的推导后，觉得懂了，随后就丢脑后了。
+
+得亏这几年来终于养成了保存和备份学习资料的习惯，今天一时兴起，找到了当时的PPT，然后一口老血就喷了出来。
+PPT上写的是MM算法，EM算法只是提了一句`EM algorithm for missing data(Special Case of MM)`。
+看来是自己记错了，不过脸皮厚点来说错的还不是很远。
+
+最近一次碰到EM算法则是在今年4月底的外部培训上，讲师大概举了一个例子：如何在一堆身高数据中推测出男女的比例？并在有新的身高数据进来时，推测其性别。男性女性的身高都可以认为是服从高斯分布的，这个问题就非常适合用EM算法来解决。其他的例子如不均匀硬币抛掷问题。
+
+忍不住吐槽一下，培训时关于EM讲的不清不楚的，某C*DN都是复制和粘贴，某乎略好一点，但也忽略掉了一些关键的地方，还是stackoverflow良心一些。培训后的几天里，翻了一些资料后，针对高斯混合分布，自己手动用R编写一个EM算法函数的尝试在失败了多次以后也终于成功了。隔了许多天后，想起这回事，在这里权且做个备忘吧。
+
+## EM 算法原理
+
+**应用场景**：知道分布函数，知道有几种分布（一般是同一分布但参数不同）。
+
+例如，样本由两个参数不同的高斯分布混合而成，由身高数据推断男女各自的身高分布参数（假设高斯分布的情形下），进而给定新的身高数据时可以判断其为男女的概率。
+
+假定是总体$X$是由$M=1,2,\cdots,m$个正态分布混合得来的。第$j \in M$个正态分布为$N(\mu_j, \sigma^2_j)$，样本${x_1, x_2, \cdots,  x_n}$来自总体$X$，第$j$个正态分布贡献的比例为$\pi_j=P(x \in N_j)$，用MLE来表示即：
+
+ $$L = \prod_if(\mu_i,\sigma_i, \pi_i; x_i) = \prod_i ( \sum_j \pi_j \phi(\mu_j, \sigma_j; x_i|j))$$
+
+有点像profile-MLE，即两套参数需要估计（共$n$个样本，$3M$个待估参数）。
+
+取对数，由于$\pi_j$是概率，且对数函数是凹函数，根据Jansen不等式，有
+
+$$\log L = \sum_i \log(\sum_j\pi_j\phi(\mu_j,\sigma_j;x_i) =\sum_i \log(E[\phi(x_i)])  \ge \sum_i E[\log(\phi(x_i))]$$
+
+我们目地是最大化对数似然函数，得到参数矩阵$(\pi, \mu, \sigma)_{M,3}$，这对于上式的最右端，意味着只要尽量使等号成立即可。
+
+但是，上式的写法并不太好，我们只简简单单用了一次Jansen不等式，对实际的求解并没有帮助。
+
+可以看到，对数函数式左端log内有加权和，这样在求解必要条件一阶导数为0是比较困难的，而最右端的加权和是在log外面，可以想象到能玩花招也就在最右端项了：
+
+$$\sum_{i=1}^n \sum_j \pi_j^{(k)} \log\left(\frac{\pi_j^{(k+1)}}{\pi_j^{(k+1)}}\phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})\right) \leq \sum_{i=1}^n\log\left(\sum_j\pi_j^{(k+1)}\frac{\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})}{\pi_j^{(k+1)}} \right) \ge \sum_{i=1}^n\sum_j\pi_j^{(k+1)}\log\left(\frac{\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})}{\pi_j^{(k+1)}} \right)$$
+
+1. 为使第二个Jansen不等式等号成立，这样就需要$\frac{\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})}{\pi_j^{(k+1)}} = \tilde{\phi}_i$为常数(对于$j$来说)，此时有
+$$\pi_{i,j}^{(k+1)} = \frac{\pi_j^{(k)} \log(\phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)}))}{\sum_j\pi_j^{(k)} \log(\phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)}))} $$
+其中$\pi_{i,j}^{(k+1)}$是第$i$个样本来自第$j$个正态分布的概率。这样得到的就是一个$n\times M$矩阵。这个矩阵接下来要用到。另外知道了每个样本属于各个分布的概率，我们容易得到新的$\pi^{(k+1)}$，只需对上述概率矩阵每列求均值即可(原因见下文)。
+
+2. 有了概率矩阵，下一步就是更新出$(\mu^{(k+1)}, \sigma^{(k+1)})$。此时我们可以解问题
+$$\max_{(\mu, \sigma)} \sum_{i=1}^n \sum_j  \pi_{i,j}^{(k+1)} \log(\phi(x_i; \mu_j, \sigma_j)$$
+对于Gaussian混合分布，只需1阶条件容易解得：
+$$\mu_j^{(k+1)} = \frac{\sum_i \pi_{i,j}^{(k+1)}x_i}{\sum_i \pi_{i,j}^{(k+1)}}$$
+$$\sigma_j^{(k+1)} = \sqrt \frac{\sum_i \pi_{i,j}^{(k+1)}(x_i - \mu_j^{(k+1)})^2}{\sum_i \pi_{i,j}^{(k+1)}}$$
+
+此时，有了$(\mu^{(k+1)}, \sigma^{(k+1)})$和上一步的副产品$\pi^{(k+1)}$，迭代可以进行下去，直至收敛。
+
+**注意1：** 
+  
+  * 关于Jansen不等式部分，我们注意到第一个$\leq$其实是$<$，这是因为对于第$i$个样本，对于不同的高斯分布，其对应的likelihood是不同的。第一个$\leq$是对所有的$\pi_j^{(k+1)}$成立，然而第二个不等式是$\ge$，为了保证目标函数值递增，这里只能想办法让$\ge$变为$=$。而且可以验证当等号成立时
+  $$\sum_{i=1}^n\sum_j\pi_j^{(k+1)}\log(\tilde{\phi}(x_i; \mu_j^{(k)}, \sigma_j^{(k)})) = \sum_{i=1}^n\sum_j\pi_{i,j}^{(k+1)}\log(\tilde{\phi}(x_i; \mu_j^{(k)}, \sigma_j^{(k)})) = \max_{\sum_j \pi_{i,j} = 1} \sum_{i=1}^n\sum_j\pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})}{\pi_{i,j}^{(k+1)}} \right) $$
+  * 为什么会收敛？我们先再用土法再分析一下。我们的目地是使得
+$$\sum_i \sum_j \log\left(\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})\right) \leq \sum_i \sum_j \log\left(\pi_j^{(k+1)} \phi(x_i; \mu_j^{(k+1)}, \sigma_j^{(k+1)})\right).$$
+一步一步来，
+\begin{align}
+\sum_{i=1}^n \sum_j \log\left(\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})\right) & = 
+\sum_{i=1}^n\sum_j\pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j^{(k)} \phi(x_i; \mu_j^{(k)}, \sigma_j^{(k)})}{\pi_{i,j}^{(k+1)}} \right) \\
+& \leq \sum_{i=1}^n\sum_j\pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j^{(k)} \phi(x_i; \mu_j^{(k+1)}, \sigma_j^{(k+1)})}{\pi_{i,j}^{(k+1)}} \right) \\
+& = \sum_{i=1}^n \sum_j \pi_{i,j}^{(k+1)} \phi(x_i; \mu_j^{(k+1)}, \sigma_j^{(k+1)}) + 
+\sum_{i=1}^n \sum_j \pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j^{(k)}}{\pi_{i,j}^{(k+1)}} \right) \\
+& \leq \sum_{i=1}^n \sum_j \pi_{i,j}^{(k+1)} \phi(x_i; \mu_j^{(k+1)}, \sigma_j^{(k+1)}) + 
+\sum_{i=1}^n \sum_j \pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j^{(k+1)}}{\pi_{i,j}^{(k+1)}} \right) \\
+& = \sum_{i=1}^n\sum_j\pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j^{(k+1)} \phi(x_i; \mu_j^{(k+1)}, \sigma_j^{(k+1)})}{\pi_{i,j}^{(k+1)}} \right) \\
+& \leq \sum_{i=1}^n \sum_j \log\left(\pi_j^{(k+1)} \phi(x_i; \mu_j^{(k+1)}, \sigma_j^{(k+1)})\right).
+\end{align}
+  第1个$=$是使得Jansen不等式中等号成立情形，第1个$\leq$是关于$(\mu, \sigma)$求最大值，第3个$\leq$来自Jansen不等式，第2个$\leq$则来自于$\pi_j^{(k+1)} = \frac{1}{n}\sum_{i=1}^n\pi_{i,j}^{(k+1)}$是以下问题的最优解
+  $$ \max_{\pi_1, \ldots, \pi_M}\sum_{i=1}^n \sum_{j=1}^M \pi_{i,j}^{(k+1)}\log\left(\frac{\pi_j} {\pi_{i,j}^{(k+1)}} \right) \\
+  s.t. \quad \pi_j \ge 0 \quad for \quad j = 1, \ldots, M \\
+  \sum_j \pi_j = 1$$
+
+## R代码实现
+
+```{r}
+## Expectation Maximize
+## Gaussian Mix Model
+## 
+
+# generating data
+
+x1 <- rnorm(300, 3, 1)
+x2 <- rnorm(400, 0, 1)
+x3 <- rnorm(500, -3, 1)
+x <- c(x1,x2,x3)
+plot(density(x), type = 'h')
+```
+
+```{r}
+## EM functions
+get_theta <- function(dat, k, mu_ini = runif(k, -5, 5), 
+                   sig_ini = runif(k, 1, 10), pi_ini = rep(1, k)/k){
+  n <- length(dat)
+  M_den  <- mapply(function(v1,v2)dnorm(dat, v1, v2), mu_ini, sig_ini)*
+                           (matrix(1,n,1)%*%matrix(pi_ini, nrow = 1))
+  M_norm <- t(apply(M_den, 1, function(x)x/sum(x)))
+  theta_new <- apply(M_norm, 2, mean)
+  #ll_0 <- sum(log(M_den/M_norm)*M_norm)
+  ll_0 <- sum(log(rowSums(M_den)))
+  return(list(tht = theta_new, Pmat = M_norm, ll_0=ll_0))
+}
+
+get_musig <- function(dat, Pmat){
+  k <- ncol(Pmat)
+  dv <- matrix(dat, nrow = 1)
+  mu_new <- dv %*% Pmat/colSums(Pmat)
+  esq <- (matrix(1, nrow = k, ncol = 1) %*% dv -  as.vector(mu_new))^2 
+  sig_new <- diag(esq %*% Pmat)/colSums(Pmat)
+  return(list(mu = as.vector(mu_new), sig = sqrt(sig_new)))
+}
+
+## 迭代
+k <- 3
+theta <- get_theta(x,k)
+ll_0 <- theta$ll_0
+i <- 0
+gap <- 10
+tol <- 1e-4
+while (i <= 1000 && gap > tol) {
+  new_musig <- get_musig(x, theta$Pmat)
+  theta <- get_theta(x, k, new_musig$mu, new_musig$sig, theta$tht)
+  ll_1 <- theta$ll_0
+  gap <- ll_1 - ll_0
+  ll_0 <- ll_1
+  i <- i + 1
+  if(i >= 1000 || gap <= tol){
+    print(data.frame(theta=theta$tht, mu = new_musig$mu, sig = new_musig$sig))
+  }
+}
+```
+
+也可以使用开源的R包来实现
+```{r}
+library(mixtools)
+res <- normalmixEM(x, c(0.2,.3, .5), runif(3, -5, 5), runif(3, 1, 10))
+print(data.frame(theta = res$lambda, mu = res$mu, sig = res$sigma))
+```
+
+**注意2：** 在实际问题中，EM算法并不总是收敛的，有可能落进局部解。例如，以上例子中，我们将方差变大，结果将不在收敛。
+```{r}
+res <- normalmixEM(c(rnorm(300, -3, 5), rnorm(400, 0, 2), rnorm(500, 3, 4)),
+                   c(0.2,.3, .5), runif(3, -5, 5), runif(3, 1, 10))
+print(data.frame(theta = res$lambda, mu = res$mu, sig = res$sigma))
+```
+
+## 专业的广义的EM收敛性证明
+
+详细内容参考**ESLII**中*The EM Algorithm in General*节。
+记$\mathbf{Z}$为观测样本，$\mathbf{Z}^m$为隐变量，即一系列的dummy，表示某样本是否属于某分布。另记$\mathbf{T} = (\mathbf{Z}, \mathbf{Z}^m)$，$\theta$为待估参数，既包含每个分布中的参数，还包含分布之间的混合比例。那么有
+
+$$\mathbf{P}(\mathbf{Z}^m|\mathbf{Z},\theta) = \frac{\mathbf{P}(\mathbf{T}|\theta)}{\mathbf{P}(\mathbf{Z}|\theta)} \Rightarrow \mathbf{P}(\mathbf{Z}|\theta) = \frac{\mathbf{P}(\mathbf{T}|\theta)}{\mathbf{P}(\mathbf{Z}^m|\mathbf{Z},\theta)}$$
+转化为对数似然函数形式有
+$$
+l(\theta^\prime;\mathbf{Z})= l_0(\theta^\prime; \mathbf{T}) - l_1(\theta^\prime; \mathbf{Z}^m|\mathbf{Z})
+$$
+通过求条件期望（conditioning on $[\mathbf{T}|\mathbf{Z}](\theta)$）得到$\theta^\prime$和$\theta$之间的迭代关系，
+$$
+l(\theta^\prime;\mathbf{Z})=\mathrm{E}[ l_0(\theta^\prime; \mathbf{T})|\mathbf{Z},\theta]- \mathrm{E}[l_1(\theta^\prime; \mathbf{Z}^m|\mathbf{Z})|\mathbf{Z},\theta]
+$$
+按本人粗浅的理解，上式是在建立迭代关系的同时，也通过积分（求期望）消除了$\mathbf{Z}^m$。
+记上式为
+$$l(\theta^\prime;\mathbf{Z})= Q(\theta^\prime, \theta) - R(\theta^\prime, \theta) $$
+由于$\max_{\theta^\prime}l(\theta^\prime;\mathbf{Z})$难以直接求解，EM做的其实是$\max_{\theta^\prime}Q(\theta^\prime, \theta)$，之所以能收敛，还在于另外一面$\max_{\theta^\prime}R(\theta^\prime, \theta) = R(\theta^\prime, \theta)$。
+则有
+$$l(\theta^\prime;\mathbf{Z})- l(\theta;\mathbf{Z}) = [Q(\theta^\prime, \theta)-Q(\theta, \theta)] + [R(\theta, \theta)-R(\theta^\prime, \theta)] \ge  0$$
+其实求条件期望这一操作，我也没搞懂...
