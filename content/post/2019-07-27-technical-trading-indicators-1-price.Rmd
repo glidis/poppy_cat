@@ -1,0 +1,196 @@
+---
+title: Technical Trading Indicators(1)：Price
+author: Glidis
+date: '2019-07-27'
+slug: technical-trading-indicators-1-price
+categories:
+  - Fiance
+tags:
+  - TTR
+---
+
+就股票交易来说，各种分析方法、套路层出不穷。进入行情界面后，除了让人印象深刻的红红绿绿柱子、数字之外，恐怕就是那些颜色不一，奇形怪状的曲线了。这些曲线其实都对应着经典的技术指标。对于有那么一点点统计学基础的选手，了解一下技术指标的含义和算法，并不是太坏的事情。这里借助R的`quantmod`和`TTR`两个包，对各色技术指标做一梳理，权当备忘。从结构上来说，本系列（指标略多，1篇文档怕只能罗列若干）文档打算从`价`和`量`两方面对指标分类，再按指标的算法和用法粗略分为`趋势`、`波动`和`趋势+波动`三组。若还能坚持写去下的话，后面不免也会对常见的基于技术指标的交易规则窥测。
+
+为了不误导不幸中看到了本文档，且打算一试身手的大好青年，还是要念叨一下：
+
+**股市有风险，入市需谨慎**
+
+```{r message=FALSE, warning=FALSE, results='hide'}
+library(quantmod)
+library(TTR)
+getSymbols('BILI')
+```
+**以下指标（Indicators）均基于价格生成**
+
+## 1. Volatility
+
+### ATR 
+
+True Range和Average True Range是波动(Volatility)的一种度量。
+
+计算方法：  
+
+$TR = \max[(high - low), |high - close_{prev}|, |low - close_{prev}|]$   
+或   
+$TR = \max(high, close_{prev}) - \min(low, close_{prev})$  
+第一次算取平均，默认的$n = 14$    
+$ATR_0 = \sum_{i=1}^n(TR_i)/n$  
+之后则迭代计算    
+$ATR_t = [(n-1)ATR_{t-1} + TR_t]/n$  
+
+图示如下  
+```{r}
+bili_atr <- ATR(BILI) ## get ATR from TTR package, has nothing to do with plots below
+chartSeries(BILI,
+            subset='2019-03::2019-07',
+            theme=chartTheme('white'),
+            TA=c(addVo(),  ## Volume
+                 addATR()  ## ATR
+                 )
+            )
+```
+
+
+
+## 2. Trend 
+
+### ADX
+Welles Wilder’s Directional Movement Index，可以用来配置交易规则。由四条线组成：     
+
+  + **DIp**, The positive Direction Index.  
+  + **DIn**, The negative Direction Index.
+  + **DX**, The Direction Index.
+  + **ADX**, The Average Direction Index(trend strength).
+  
+计算方法：
+
+1. 先计算`+DM`和`-DM`   
+   ```
+UpMove = today's high − yesterday's high
+DownMove = yesterday's low − today's low
+if UpMove > DownMove and UpMove > 0, then +DM = UpMove, else +DM = 0
+if DownMove > UpMove and DownMove > 0, then -DM = DownMove, else -DM = 0
+   ```
+2. 计算`+DI`和`-DI`，$n$默认取14(Welles Wilder)
+   ```
+   sum(+DM) = (n-1)*sum(+DM)_{-1} + (+DM)
+   sum(-DM) = (n-1)*sum(-DM)_{-1} + (-DM)
+   sum(TR) = n*ATR
+   +DI = 100 * sum(+DM)/sum(TR)
+   -DI = 100 * sum(-DM)/sum(TR)
+   ```
+3. 计算`DX`和`ADX`
+   ```
+   DX = [(+DI) - (-DI)]/[(+DI) + (-DI)]
+   ADX = [(n-1)*ADX_{-1} + DX]/n
+   ```
+   
+`DX`或`ADX`越大，趋势越强，此时`+DI`向上交叉`-DI`可视为买入信号，`-DI`向上交叉`+DI`可视为卖出信号。当然有经验的选手是一般不会选交叉作为交易信号的。
+
+图示如下
+```{r}
+bili_adx <- ADX(BILI) 
+chartSeries(BILI,
+            subset='2019-03::2019-07',
+            theme=chartTheme('white'),
+            TA=c(addVo(),  
+                 addADX()  ## ATR
+                 )
+            )
+```
+  
+
+### Aroon and Aroon Oscillator
+Aroon可以用来识别趋势的起始，由上下两条线组成，度量了过去$n$期（默认取20）中，最高的High和最低的Low距现在多久。
+
+计算方法：
+
+$AroonUp = 100 * \frac{n-PeriodsSinceHighestHigh}{n}$   
+
+$AroonDown = 100 * \frac{n-PeriodsSinceLowestLow}{n}$
+
+$AroonOscillator = AroonUp - AroonDown$
+
+AroonUp(AroonDown) 在70至100间时，可认为上升（下跌）趋势；AroonUp大于70且AroonDown小于30时，可认为是强上升趋势。若不介意的话交叉点也可以略略参考一下。
+
+图示如下
+```{r}
+bili_aroon <- aroon(BILI[, c("BILI.High", "BILI.Low")]) 
+chartSeries(BILI,
+            subset='2019-03::2019-07',
+            theme=chartTheme('white'),
+            TA=c(addVo(),  
+                 addAroon(),
+                 addAroonOsc()
+                 )
+            )
+```
+
+
+## 3. Volitality + Trends
+
+### Bollinger Bands
+
+Bollinger Bands由三条线组成，中间是一条价格均线，上下两条边界可视为关于价格均线的置信区间。   
+价格均线中的价格一般指的是初始价格（typical price），即[high+low+close]/3，用来平均的时间窗口一般是20期。如果数据中没有high、low和close，那么一般会用close等其他价格来替换。
+
+计算方法，其中均值和标准差都是依据前$n$期数据滚动计算的，$F$默认取2：
+
+$TP = \frac{High+Low+Close}{3}$
+
+$mavg = \frac{1}{n}\sum_{i=1}^n TP_i$
+
+$\sigma = \mathbf{std}(TP_i)$
+
+$up = mavg + F*\sigma$
+
+$dn = mavg - F*\sigma$
+
+$pctB = (TP - dn)/(up -dn)$
+
+$BandWidth = up - dn = 2*F*\sigma$
+
+简单来说，BandWidth的变窄通常意味着一个趋势的即将结束，变宽则意味着一个新的趋势即将开始。up和dn虽然从形式上类似于置信区间带，但其计算过程忽略了每期价格见的相关性，并不能当做正态分布情形来推断，价格落在up和dn之间的概率并不是略大于95%，按经验来看只有80%+。个人愚见，Bollinger Bands利用了较多的信息（但未涉及交易量），有区间，有趋势，很值得琢磨一下自定义配置方案。
+
+图示如下
+```{r}
+bili_bbands_hlc <- BBands(BILI[, c("BILI.High", "BILI.Low", "BILI.Close")]) 
+bili_bbands_close <- BBands(BILI[, c("BILI.Close")]) 
+chartSeries(BILI,
+            subset='2019-03::2019-07',
+            theme=chartTheme('white'),
+            TA=c(addVo(),  
+                 addBBands()
+                 )
+            )
+```
+
+
+### CCI
+
+Commodity Channel Index只有一条线，形式上类似于标准化（减去均值再除以标准差）再乘以一个常数系数，但是分子上不是标准差，而是Mean Absolute Deviation。
+
+计算方法，其中均值和MAD都是依据前$n$期数据滚动计算的，$c$默认取0.015：
+
+$TP = \frac{High+Low+Close}{3}$
+
+$mavg = \frac{1}{n}\sum_{i=1}^n TP_i$
+
+$MAD = frac{1}{n}\sum_{i=1}^n |TP_i-mavg|$
+
+$CCI = \frac{1}{c}\frac{TP-mavg}{MAD}$
+
+CCI一般落在-100至100之间，一个基准的交易方法：当CCI上升到（下降到）100以上（-100以下）时买进（卖出），当CCI上升到（下降到）-100以上（100以下）时买进（卖出）。
+
+图示如下
+
+```{r}
+bili_cci <- CCI(BILI[, c("BILI.High", "BILI.Low", "BILI.Close")]) 
+chartSeries(BILI,
+            subset='2019-03::2019-07',
+            theme=chartTheme('white'),
+            TA=c(addVo(),  
+                 addCCI()  ## ATR
+                 )
+            )
+```

@@ -1,0 +1,155 @@
+---
+title: Technical Trading Indicators(1)：Price
+author: Glidis
+date: '2019-07-27'
+slug: technical-trading-indicators-1-price
+categories:
+  - Fiance
+tags:
+  - TTR
+---
+
+
+
+<p>就股票交易来说，各种分析方法、套路层出不穷。进入行情界面后，除了让人印象深刻的红红绿绿柱子、数字之外，恐怕就是那些颜色不一，奇形怪状的曲线了。这些曲线其实都对应着经典的技术指标。对于有那么一点点统计学基础的选手，了解一下技术指标的含义和算法，并不是太坏的事情。这里借助R的<code>quantmod</code>和<code>TTR</code>两个包，对各色技术指标做一梳理，权当备忘。从结构上来说，本系列（指标略多，1篇文档怕只能罗列若干）文档打算从<code>价</code>和<code>量</code>两方面对指标分类，再按指标的算法和用法粗略分为<code>趋势</code>、<code>波动</code>和<code>趋势+波动</code>三组。若还能坚持写去下的话，后面不免也会对常见的基于技术指标的交易规则窥测。</p>
+<p>为了不误导不幸中看到了本文档，且打算一试身手的大好青年，还是要念叨一下：</p>
+<p><strong>股市有风险，入市需谨慎</strong></p>
+<pre class="r"><code>library(quantmod)
+library(TTR)
+getSymbols(&#39;BILI&#39;)</code></pre>
+<p><strong>以下指标（Indicators）均基于价格生成</strong></p>
+<div id="volatility" class="section level2">
+<h2>1. Volatility</h2>
+<div id="atr" class="section level3">
+<h3>ATR</h3>
+<p>True Range和Average True Range是波动(Volatility)的一种度量。</p>
+<p>计算方法：</p>
+<p><span class="math inline">\(TR = \max[(high - low), |high - close_{prev}|, |low - close_{prev}|]\)</span><br />
+或<br />
+<span class="math inline">\(TR = \max(high, close_{prev}) - \min(low, close_{prev})\)</span><br />
+第一次算取平均，默认的<span class="math inline">\(n = 14\)</span><br />
+<span class="math inline">\(ATR_0 = \sum_{i=1}^n(TR_i)/n\)</span><br />
+之后则迭代计算<br />
+<span class="math inline">\(ATR_t = [(n-1)ATR_{t-1} + TR_t]/n\)</span></p>
+<p>图示如下</p>
+<pre class="r"><code>bili_atr &lt;- ATR(BILI) ## get ATR from TTR package, has nothing to do with plots below
+chartSeries(BILI,
+            subset=&#39;2019-03::2019-07&#39;,
+            theme=chartTheme(&#39;white&#39;),
+            TA=c(addVo(),  ## Volume
+                 addATR()  ## ATR
+                 )
+            )</code></pre>
+<p><img src="/post/2019-07-27-technical-trading-indicators-1-price_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+</div>
+</div>
+<div id="trend" class="section level2">
+<h2>2. Trend</h2>
+<div id="adx" class="section level3">
+<h3>ADX</h3>
+<p>Welles Wilder’s Directional Movement Index，可以用来配置交易规则。由四条线组成：</p>
+<ul>
+<li><strong>DIp</strong>, The positive Direction Index.<br />
+</li>
+<li><strong>DIn</strong>, The negative Direction Index.</li>
+<li><strong>DX</strong>, The Direction Index.</li>
+<li><strong>ADX</strong>, The Average Direction Index(trend strength).</li>
+</ul>
+<p>计算方法：</p>
+<ol style="list-style-type: decimal">
+<li><p>先计算<code>+DM</code>和<code>-DM</code></p>
+<pre><code>UpMove = today&#39;s high − yesterday&#39;s high
+DownMove = yesterday&#39;s low − today&#39;s low
+if UpMove &gt; DownMove and UpMove &gt; 0, then +DM = UpMove, else +DM = 0
+if DownMove &gt; UpMove and DownMove &gt; 0, then -DM = DownMove, else -DM = 0</code></pre></li>
+<li><p>计算<code>+DI</code>和<code>-DI</code>，<span class="math inline">\(n\)</span>默认取14(Welles Wilder)</p>
+<pre><code>sum(+DM) = (n-1)*sum(+DM)_{-1} + (+DM)
+sum(-DM) = (n-1)*sum(-DM)_{-1} + (-DM)
+sum(TR) = n*ATR
++DI = 100 * sum(+DM)/sum(TR)
+-DI = 100 * sum(-DM)/sum(TR)</code></pre></li>
+<li><p>计算<code>DX</code>和<code>ADX</code></p>
+<pre><code>DX = [(+DI) - (-DI)]/[(+DI) + (-DI)]
+ADX = [(n-1)*ADX_{-1} + DX]/n</code></pre></li>
+</ol>
+<p><code>DX</code>或<code>ADX</code>越大，趋势越强，此时<code>+DI</code>向上交叉<code>-DI</code>可视为买入信号，<code>-DI</code>向上交叉<code>+DI</code>可视为卖出信号。当然有经验的选手是一般不会选交叉作为交易信号的。</p>
+<p>图示如下</p>
+<pre class="r"><code>bili_adx &lt;- ADX(BILI) 
+chartSeries(BILI,
+            subset=&#39;2019-03::2019-07&#39;,
+            theme=chartTheme(&#39;white&#39;),
+            TA=c(addVo(),  
+                 addADX()  ## ATR
+                 )
+            )</code></pre>
+<p><img src="/post/2019-07-27-technical-trading-indicators-1-price_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="aroon-and-aroon-oscillator" class="section level3">
+<h3>Aroon and Aroon Oscillator</h3>
+<p>Aroon可以用来识别趋势的起始，由上下两条线组成，度量了过去<span class="math inline">\(n\)</span>期（默认取20）中，最高的High和最低的Low距现在多久。</p>
+<p>计算方法：</p>
+<p><span class="math inline">\(AroonUp = 100 * \frac{n-PeriodsSinceHighestHigh}{n}\)</span></p>
+<p><span class="math inline">\(AroonDown = 100 * \frac{n-PeriodsSinceLowestLow}{n}\)</span></p>
+<p><span class="math inline">\(AroonOscillator = AroonUp - AroonDown\)</span></p>
+<p>AroonUp(AroonDown) 在70至100间时，可认为上升（下跌）趋势；AroonUp大于70且AroonDown小于30时，可认为是强上升趋势。若不介意的话交叉点也可以略略参考一下。</p>
+<p>图示如下</p>
+<pre class="r"><code>bili_aroon &lt;- aroon(BILI[, c(&quot;BILI.High&quot;, &quot;BILI.Low&quot;)]) 
+chartSeries(BILI,
+            subset=&#39;2019-03::2019-07&#39;,
+            theme=chartTheme(&#39;white&#39;),
+            TA=c(addVo(),  
+                 addAroon(),
+                 addAroonOsc()
+                 )
+            )</code></pre>
+<p><img src="/post/2019-07-27-technical-trading-indicators-1-price_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+</div>
+<div id="volitality-trends" class="section level2">
+<h2>3. Volitality + Trends</h2>
+<div id="bollinger-bands" class="section level3">
+<h3>Bollinger Bands</h3>
+<p>Bollinger Bands由三条线组成，中间是一条价格均线，上下两条边界可视为关于价格均线的置信区间。<br />
+价格均线中的价格一般指的是初始价格（typical price），即[high+low+close]/3，用来平均的时间窗口一般是20期。如果数据中没有high、low和close，那么一般会用close等其他价格来替换。</p>
+<p>计算方法，其中均值和标准差都是依据前<span class="math inline">\(n\)</span>期数据滚动计算的，<span class="math inline">\(F\)</span>默认取2：</p>
+<p><span class="math inline">\(TP = \frac{High+Low+Close}{3}\)</span></p>
+<p><span class="math inline">\(mavg = \frac{1}{n}\sum_{i=1}^n TP_i\)</span></p>
+<p><span class="math inline">\(\sigma = \mathbf{std}(TP_i)\)</span></p>
+<p><span class="math inline">\(up = mavg + F*\sigma\)</span></p>
+<p><span class="math inline">\(dn = mavg - F*\sigma\)</span></p>
+<p><span class="math inline">\(pctB = (TP - dn)/(up -dn)\)</span></p>
+<p><span class="math inline">\(BandWidth = up - dn = 2*F*\sigma\)</span></p>
+<p>简单来说，BandWidth的变窄通常意味着一个趋势的即将结束，变宽则意味着一个新的趋势即将开始。up和dn虽然从形式上类似于置信区间带，但其计算过程忽略了每期价格见的相关性，并不能当做正态分布情形来推断，价格落在up和dn之间的概率并不是略大于95%，按经验来看只有80%+。个人愚见，Bollinger Bands利用了较多的信息（但未涉及交易量），有区间，有趋势，很值得琢磨一下自定义配置方案。</p>
+<p>图示如下</p>
+<pre class="r"><code>bili_bbands_hlc &lt;- BBands(BILI[, c(&quot;BILI.High&quot;, &quot;BILI.Low&quot;, &quot;BILI.Close&quot;)]) 
+bili_bbands_close &lt;- BBands(BILI[, c(&quot;BILI.Close&quot;)]) 
+chartSeries(BILI,
+            subset=&#39;2019-03::2019-07&#39;,
+            theme=chartTheme(&#39;white&#39;),
+            TA=c(addVo(),  
+                 addBBands()
+                 )
+            )</code></pre>
+<p><img src="/post/2019-07-27-technical-trading-indicators-1-price_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="cci" class="section level3">
+<h3>CCI</h3>
+<p>Commodity Channel Index只有一条线，形式上类似于标准化（减去均值再除以标准差）再乘以一个常数系数，但是分子上不是标准差，而是Mean Absolute Deviation。</p>
+<p>计算方法，其中均值和MAD都是依据前<span class="math inline">\(n\)</span>期数据滚动计算的，<span class="math inline">\(c\)</span>默认取0.015：</p>
+<p><span class="math inline">\(TP = \frac{High+Low+Close}{3}\)</span></p>
+<p><span class="math inline">\(mavg = \frac{1}{n}\sum_{i=1}^n TP_i\)</span></p>
+<p><span class="math inline">\(MAD = frac{1}{n}\sum_{i=1}^n |TP_i-mavg|\)</span></p>
+<p><span class="math inline">\(CCI = \frac{1}{c}\frac{TP-mavg}{MAD}\)</span></p>
+<p>CCI一般落在-100至100之间，一个基准的交易方法：当CCI上升到（下降到）100以上（-100以下）时买进（卖出），当CCI上升到（下降到）-100以上（100以下）时买进（卖出）。</p>
+<p>图示如下</p>
+<pre class="r"><code>bili_cci &lt;- CCI(BILI[, c(&quot;BILI.High&quot;, &quot;BILI.Low&quot;, &quot;BILI.Close&quot;)]) 
+chartSeries(BILI,
+            subset=&#39;2019-03::2019-07&#39;,
+            theme=chartTheme(&#39;white&#39;),
+            TA=c(addVo(),  
+                 addCCI()  ## ATR
+                 )
+            )</code></pre>
+<p><img src="/post/2019-07-27-technical-trading-indicators-1-price_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+</div>
